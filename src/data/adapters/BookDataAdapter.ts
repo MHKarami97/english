@@ -1,7 +1,7 @@
 import type { BookRef, Unit, Word } from '@/domain/entities';
 import type { RawBookData } from '@/domain/raw';
 import { parseExample } from '@/domain/parsing/example';
-import { parsePronunciation } from '@/domain/parsing/pronunciation';
+import { parsePronunciation, splitPos } from '@/domain/parsing/pronunciation';
 
 export interface AdaptedBook {
   readonly units: readonly Unit[];
@@ -38,6 +38,7 @@ export class BookDataAdapter {
           word: text,
           ipa,
           pos,
+          posTags: splitPos(pos).map((tag) => tag.toLowerCase()),
           definition: (rawWord.desc ?? '').trim(),
           exampleSegments: parseExample(rawWord.exam ?? ''),
           translationFa: '',

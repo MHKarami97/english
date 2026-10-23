@@ -1,9 +1,11 @@
 import type { Setting, UserWordState } from '@/domain/entities';
+import type { Mistake, PlacementResult, QuizAnswerLog, QuizSession } from '@/domain/quiz/models';
 import type { ReviewCard } from '@/domain/scheduling/types';
 import type { DailyStats, ReviewLog } from '@/domain/study/models';
 
 export const BACKUP_FORMAT = 'lexi-book-progress';
-export const BACKUP_VERSION = 1;
+/** 1: Phase 2 (study data). 2: Phase 3 adds quiz sessions, answer logs, mistakes and placement results. */
+export const BACKUP_VERSION = 2;
 
 export interface ProgressBackup {
   readonly format: typeof BACKUP_FORMAT;
@@ -16,6 +18,10 @@ export interface ProgressBackup {
     readonly dailyStats: readonly DailyStats[];
     readonly userWordStates: readonly UserWordState[];
     readonly settings: readonly Setting[];
+    readonly quizSessions: readonly QuizSession[];
+    readonly quizAnswerLogs: readonly QuizAnswerLog[];
+    readonly mistakes: readonly Mistake[];
+    readonly placementResults: readonly PlacementResult[];
   };
 }
 
@@ -38,6 +44,7 @@ const isOneOf = <T extends string>(value: unknown, options: readonly T[]): value
 const STATES = ['new', 'learning', 'review', 'relearning'] as const;
 const RATING_VALUES = ['again', 'hard', 'good', 'easy'] as const;
 const KNOWLEDGE = ['unknown', 'known', 'new'] as const;
+const CONFIDENCE = ['low', 'medium', 'high'] as const;
 
 const isReviewCard: Guard<ReviewCard> = (value): value is ReviewCard =>
   isRecord(value) &&
@@ -89,11 +96,57 @@ const isUserWordState: Guard<UserWordState> = (value): value is UserWordState =>
 const isSetting: Guard<Setting> = (value): value is Setting =>
   isRecord(value) && isString(value.key) && 'value' in value;
 
+const isQuizSession: Guard<QuizSession> = (value): value is QuizSession =>
+  isRecord(value) &&
+  isString(value.id) &&
+  isString(value.mode) &&
+  isRecord(value.scope) &&
+  isString(value.scope.kind) &&
+  isNumber(value.startedAt) &&
+  (value.finishedAt === null || isNumber(value.finishedAt)) &&
+  isNumber(value.totalQuestions) &&
+  isNumber(value.correctCount) &&
+  isNumber(value.durationMs) &&
+  isNumber(value.seed);
+
+const isQuizAnswerLog: Guard<QuizAnswerLog> = (value): value is QuizAnswerLog =>
+  isRecord(value) &&
+  isString(value.sessionId) &&
+  isString(value.wordId) &&
+  isString(value.questionType) &&
+  typeof value.correct === 'boolean' &&
+  typeof value.almost === 'boolean' &&
+  isNumber(value.answeredAt) &&
+  isNumber(value.durationMs);
+
+const isMistake: Guard<Mistake> = (value): value is Mistake =>
+  isRecord(value) &&
+  isString(value.wordId) &&
+  isString(value.questionType) &&
+  isNumber(value.wrongCount) &&
+  isNumber(value.consecutiveCorrect) &&
+  isNumber(value.lastWrongAt) &&
+  isNumber(value.createdAt);
+
+const isPlacementResult: Guard<PlacementResult> = (value): value is PlacementResult =>
+  isRecord(value) &&
+  isString(value.id) &&
+  isString(value.bookId) &&
+  isNumber(value.takenAt) &&
+  (value.estimatedStartUnitId === null || isString(value.estimatedStartUnitId)) &&
+  isRecord(value.perUnitAccuracy) &&
+  isOneOf(value.confidence, CONFIDENCE);
+
 function readList<T>(value: unknown, guard: Guard<T>, label: string): readonly T[] {
   if (!Array.isArray(value)) throw new BackupError(`The file has no list of ${label}.`);
   const invalid = value.findIndex((item) => !guard(item));
   if (invalid !== -1) throw new BackupError(`Entry ${invalid + 1} in ${label} is not valid.`);
   return value as readonly T[];
+}
+
+/** Lists that older files simply do not have are treated as empty. */
+function readOptionalList<T>(value: unknown, guard: Guard<T>, label: string): readonly T[] {
+  return value === undefined ? [] : readList(value, guard, label);
 }
 
 /** Rejects the whole file on the first problem, so a damaged backup can never be half-applied. */
@@ -124,6 +177,10 @@ export function parseBackup(text: string): ProgressBackup {
       dailyStats: readList(data.dailyStats, isDailyStats, 'daily statistics'),
       userWordStates: readList(data.userWordStates, isUserWordState, 'word states'),
       settings: readList(data.settings, isSetting, 'settings'),
+      quizSessions: readOptionalList(data.quizSessions, isQuizSession, 'quiz sessions'),
+      quizAnswerLogs: readOptionalList(data.quizAnswerLogs, isQuizAnswerLog, 'quiz answers'),
+      mistakes: readOptionalList(data.mistakes, isMistake, 'mistakes'),
+      placementResults: readOptionalList(data.placementResults, isPlacementResult, 'placement results'),
     },
   };
 }
