@@ -60,9 +60,3 @@ export interface BookImporterPort {
     signal?: AbortSignal,
   ): Promise<ImportOutcome>;
 }
-
-/** Reserved for Phase 2 (spaced repetition). Intentionally has no implementation yet. */
-export interface SchedulerStrategy {
-  readonly id: string;
-  pickNext(candidates: readonly UserWordState[], now: number): string | undefined;
-}
