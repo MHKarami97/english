@@ -1,6 +1,6 @@
 # Lexi Book
 
-Offline-first PWA for learning English vocabulary from the *4000 Essential English Words* books, with a spaced-repetition review schedule. Production: https://english.mhkarami97.ir
+Offline-first PWA for learning English vocabulary from the *4000 Essential English Words* books, with a spaced-repetition review schedule and practice modes. Production: https://english.mhkarami97.ir
 
 The app name is a single constant in `src/config/app.ts`.
 
@@ -45,53 +45,71 @@ flowchart LR
   SD --> SS
 ```
 
-Layers: `domain` (entities, pure scheduling and calendar logic, ports), `data` (Dexie, repositories, importer, backup), `application` (use-cases and the study session), `infrastructure` (audio, search index, clock, storage), `presentation` (views, components, composables, Pinia stores). Patterns: Repository, Adapter (`BookDataAdapter`), Facade (`AudioPlayer`), Strategy (`SchedulerStrategy`), ContentPack, Unit of Work (`ReviewLedger`), and a composition root in `src/container.ts`.
+Practice flow:
 
-## Study algorithm
+```mermaid
+flowchart LR
+  SR[ScopeResolver: indexed id queries] -->|word ids| QS[QuizSessionService]
+  QS --> QF[QuestionFactory]
+  QF --> ST[QuizStrategy per question type]
+  ST --> DSel[DistractorSelector]
+  DSel --> Pool[(Indexed pools: unit, POS, book)]
+  QS --> QL{{QuizLedger: one transaction}}
+  QL --> AL[QuizAnswerLogRepository]
+  QL --> MR[MistakeRepository]
+  AL & MR --> DB[(Dexie / IndexedDB)]
+  CL[Clock] --> QS
+  RN[Seeded Random] --> QS
+```
+
+Layers: `domain` (entities, pure scheduling, calendar and quiz logic, ports), `data` (Dexie, repositories, importer, backup), `application` (use-cases and sessions), `infrastructure` (audio, search index, clock, random, storage, media probe), `presentation` (views, components, composables, Pinia stores). Patterns: Repository, Adapter (`BookDataAdapter`), Facade (`AudioPlayer`), Strategy (`SchedulerStrategy`, `QuizStrategy`), Factory (`QuestionFactory`), ContentPack, Unit of Work (`ReviewLedger`, `QuizLedger`), and a composition root in `src/container.ts`.
+
+## Study algorithm (spaced repetition)
 
 Scheduling is SuperMemo SM-2 ([original description](http://super-memory.com/english/ol/sm2.htm), [Anki manual](https://docs.ankiweb.net/manual/deck-options) for the surrounding concepts). `Sm2Scheduler` is pure: it receives the card, the rating and the current time, and returns a new card.
 
 - The ease factor starts at 2.5 and never goes below 1.3.
-- On every answer `EF' = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))`. The ease is updated before the new interval is computed, as step 5 of the original text says.
-- A grade below 3 resets the repetition count and returns the interval to 1 day. The ease keeps its updated value; it is not reset to 2.5.
+- On every answer `EF' = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))`, computed before the new interval, as step 5 of the original text says.
+- A grade below 3 resets the repetition count and returns the interval to 1 day. The ease keeps its updated value.
 - Otherwise the intervals are 1 day, then 6 days, then `previous interval * EF`, **rounded up** (the original text says "round it up").
-- A lapse is counted when a card in the `review` state is answered Again. Failing a new or already relearning card does not add a lapse.
+- A lapse is counted when a card in the `review` state is answered Again.
 - If the clock moves backwards, a card is never scheduled before its last review.
 
-### Buttons to quality grades
-
-The only place that maps buttons to grades is `src/domain/scheduling/ratingMap.ts`.
-
-| Button | q | SM-2 meaning | Ease change from 2.5 |
+| Button | q | Meaning | Ease change from 2.5 |
 |---|---|---|---|
 | Again | 1 | incorrect, but the answer felt familiar | -0.54 |
 | Hard | 3 | correct with serious difficulty | -0.14 |
 | Good | 4 | correct after a hesitation | 0 |
 | Easy | 5 | perfect recall | +0.10 |
 
-Pure SM-2 has no separate Hard or Easy interval multiplier, so for the first two repetitions Hard, Good and Easy show the same interval. They diverge later through the ease factor. Anki's own SM-2 variant adds modifiers; this app deliberately does not.
+The mapping lives in `src/domain/scheduling/ratingMap.ts`. Pure SM-2 has no Hard or Easy interval multipliers, so for the first two repetitions the three passing buttons show the same interval.
 
-### Study days
+A study day starts at `dayRolloverHour` (default 4) in the device time zone. Due times are the start of a study day, so daylight-saving days are 23 or 25 hours long (tested for Europe/Amsterdam; Iran has had no daylight saving since 2022).
 
-A study day starts at `dayRolloverHour` (default 4) in the device time zone (`Intl.DateTimeFormat`). Due times are the start of a study day, so every card due "on day N" becomes available at the same moment. Daylight-saving days are therefore 23 or 25 hours long, which the tests cover for Europe/Amsterdam. Iran has had no daylight saving since 2022, so Asia/Tehran is tested at its fixed +03:30 offset and across the final change in September 2022.
+Daily queue: due reviews oldest first up to `maxReviewsPerDay` minus those done today; new cards from `activeUnitIds` up to `newPerDay` minus those introduced today, spread evenly among the reviews. Only Again returns within a session (after 3 cards), plus Hard once on a brand-new card (after 6). Swipes are disabled in review mode because a stray swipe would record a rating.
 
-### Daily queue
+## Practice (quizzes)
 
-- Due reviews (oldest due first) are limited by `maxReviewsPerDay` minus the reviews already done today.
-- New cards come from `activeUnitIds`, in book order or shuffled with a seedable random source, limited by `newPerDay` minus the new cards already introduced today. Words with a review card are never new again.
-- New cards are spread evenly among reviews: after step `i` exactly `floor((i + 1) * new / total)` new cards have been shown.
-- "Study more" adds 10 new cards beyond the daily limit, after a confirmation.
-- Orphan cards (their word disappeared after a content re-import) are skipped and never deleted.
+Modes: meaning match, picture quiz, fill the blank (choice and typing), dictation, mixed, timed challenge, matching game, mistakes practice, and a placement test. Questions are generated from the existing book data only, in small batches, and the next question is prepared while the current one is answered.
 
-### In-session repeats
+### Quiz results never change SM-2 schedules
 
-Only Again returns within the session (after 3 other cards), plus Hard once on a brand-new card (after 6). The original SM-2 asks to repeat everything below grade 4 until it reaches 4; this app repeats less, on purpose, so sessions stay short. A repeat does not write a log, does not change the schedule and can be undone. Repeats end when the card is answered Good or Easy.
+SM-2 ratings are self-assessed recall. A multiple-choice answer is an objective result that can be guessed. Mixing the two would corrupt the schedule data, so the quiz code has no access to the review cards, the review ledger or the scheduler (see `src/container.ts`). A wrong quiz answer only creates or updates a Mistake and appends a quiz log. This is deliberate and there is no setting to change it.
 
-The remaining queue is saved after every answer (`studySession` setting), so a refresh resumes the same session on the same study day. Undo history is not saved across a refresh.
+### How questions are built
 
-### Review mode and swipes
+- **Distractors** come from indexed queries, at most 40 rows from a random window per tier: same unit and part of speech, same unit, neighboring units (two either side) with the same part of speech, neighboring units, the whole book with the same part of speech, the whole book. A candidate is rejected when its word contains the answer or the reverse, when a definition option contains the answer word, when its label duplicates an option already chosen, or when its definition is nearly identical: the overlap of meaningful words (stop words removed) is at least 60% (Jaccard). The selector returns exactly the requested number of options or throws `DistractorPoolTooSmallError`; such a word is simply skipped.
+- **Cloze** uses the highlighted part of the example sentence as the blank, trimmed. If the highlighted form differs from the headword (a plural, for example), typing accepts both and reports the headword as "close, check the form"; choice questions skip those words. Words whose example has no highlight are skipped.
+- **Typed answers** are normalized (trim, lowercase, collapsed spaces, Unicode apostrophes and hyphens). An exact match is correct. With typo tolerance on (default), one wrong letter in a word of five or more letters is "almost": it counts as correct and shows the right spelling.
+- **Mistakes** are created on a wrong answer. In mistakes practice, two correct answers in a row remove the mistake; a wrong answer resets the streak.
+- **Missing media**: before a picture or dictation question is shown, the app checks whether the file is cached or reachable. If not, that question type is excluded for that word, the session continues, and the summary says how many were skipped.
+- **Sessions** are saved after every answer and resume after a refresh. A timed challenge continues with the time left at the last answer; the clock is paused while the tab is hidden ([Page Visibility API](https://developer.mozilla.org/docs/Web/API/Page_Visibility_API)).
 
-Swipe gestures stay in the Phase 1 "Known / Unknown" study mode. In review mode they are disabled: a stray swipe would record a rating and move a schedule, and undo is only one tap away but easy to miss.
+### Placement test (a rough estimate)
+
+Four random definition-to-word questions per unit, asked in book order. The run stops once two consecutive units together score below 50%, or when all units are done. The estimated start unit is the first unit where it (together with the next evaluated unit) falls below 50%; if everything passes, it is the last unit. Confidence is low under 12 answers, medium under 30, high above that.
+
+Limits: with four questions per unit, one guess or slip moves a unit by 25 points, multiple choice allows guessing, and only definition recognition is tested. Nothing is applied until you confirm. "Start from Unit X" sets the active units; "Also mark earlier words as known" shows the exact number of words that will change and asks for confirmation. One Undo restores the previous active units and word marks. Placement answers are not written to the mistakes queue.
 
 ## Settings
 
@@ -104,9 +122,16 @@ Swipe gestures stay in the Phase 1 "Known / Unknown" study mode. In review mode 
 | `activeUnitIds` | all units | any subset |
 | `newCardOrder` | `unit-order` | `unit-order`, `random` |
 | `skipKnownWords` | true | on/off |
-| `autoPlayOnFlip` (Phase 1) | false | on/off |
+| `autoPlayOnFlip` | false | on/off |
+| `quizQuestionCount` | 10 | 3-100 |
+| `quizOptionCount` | 4 | 3-6 |
+| `timedChallengeSeconds` | 60 | 15-300 |
+| `typoTolerance` | true | on/off |
+| `showHints` | true | on/off |
+| `quizAutoPlayAudio` | true | on/off |
+| `quizAutoAdvance` | true | on/off |
 
-Study settings are stored as one object under the `studySettings` key and sanitized on every read and write. Changing the rollover hour affects answers given afterwards; existing due times are not rewritten.
+Settings are stored as objects (`studySettings`, `quizSettings`) and sanitized on every read and write.
 
 ## Data model
 
@@ -121,46 +146,43 @@ this.version(2).stores({
   reviewLogs: '++id, wordId, reviewedAt, [bookId+reviewedAt]',
   dailyStats: 'dateKey',
 });
+this.version(3).stores({
+  words: 'id, bookId, unitId, *posTags',
+  quizSessions: 'id, startedAt, mode',
+  quizAnswerLogs: '++id, sessionId, wordId, answeredAt',
+  mistakes: 'wordId, lastWrongAt',
+  placementResults: 'id, bookId, takenAt',
+}).upgrade(/* fills words.posTags from words.pos */);
 ```
 
-- `ReviewCard` rows are created on a word's first answer, so "new" words are the ones without a row. The state union still contains `new`; it appears as `previousState` in logs.
-- The due list is one range query on `[bookId+dueAt]`; it never loads all 4000 cards.
-- Each answer (and each undo) is one Dexie transaction over `reviewCards`, `reviewLogs` and `dailyStats` ([Dexie transactions](https://dexie.org/docs/Dexie/Dexie.transaction())).
-- Content tables (`books`, `units`, `words`, `importState`) and user tables are separate, so a content re-import never touches progress.
+- `QuizSession`, `QuizAnswerLog` (append-only), `Mistake` and `PlacementResult` follow the Phase 3 specification.
+- Version 3 adds a multi-entry index on `posTags` so distractor pools can be found by part of speech. The upgrade computes `posTags` for words already stored, because an unchanged content hash never triggers a re-import. All other tables are untouched ([Dexie versioning](https://dexie.org/docs/Version/Version), [upgrade](https://dexie.org/docs/Version/Version.upgrade())).
+- Each quiz answer writes its log and its mistake update in one transaction ([Dexie transactions](https://dexie.org/docs/Dexie/Dexie.transaction())).
+- Content tables and user tables are separate, so a content re-import never touches progress.
 
 ### Migration notes
 
-Version 2 only adds tables, so no upgrade function is needed and version 1 rows stay as they are ([Dexie versioning](https://dexie.org/docs/Version/Version)). A test opens a version 1 database and checks that known marks, favorites and settings survive.
-
-Interaction with the Phase 1 "known / unknown" marks:
-
-- With `skipKnownWords` on, words marked known are not introduced as new cards. Words marked unknown are introduced normally.
-- Marking a word known later does not delete an existing review card, and unmarking it does not create one.
-- "Reset all review progress" clears cards, logs and daily statistics, but not word marks. "Reset word marks" clears marks, but not the review schedule.
+Version 2 and 3 only add tables or indexes; version 1 and 2 rows stay as they are. With the Phase 1 "known / unknown" marks: `skipKnownWords` skips known words for new cards; marking a word known later does not delete its review card. "Reset all review progress" does not touch quiz data, and "Reset word marks" does not touch the schedule.
 
 ## Progress export format
 
-Settings > Back up your progress. The file is JSON; only user data is exported, never book content.
+Settings > Back up your progress. Only user data is exported, never book content.
 
 ```json
 {
   "format": "lexi-book-progress",
-  "version": 1,
+  "version": 2,
   "exportedAt": 1790000000000,
   "appVersion": "0.2.0",
   "data": {
     "reviewCards": [], "reviewLogs": [], "dailyStats": [],
-    "userWordStates": [], "settings": []
+    "userWordStates": [], "settings": [],
+    "quizSessions": [], "quizAnswerLogs": [], "mistakes": [], "placementResults": []
   }
 }
 ```
 
-Import validates the whole file first and rejects it on the first invalid record (wrong format, newer version, malformed entry). Then you choose:
-
-- **Merge**: the newer card or word state wins (by last review or update time), logs are de-duplicated by word and time, daily counters take the larger value, existing settings are kept.
-- **Replace**: all user data is deleted first, then the file is written.
-
-After the first completed review session the app calls `navigator.storage.persist()` once; the result is shown in Settings > Storage.
+Version 1 files (Phase 2) are still accepted; the quiz lists are then empty. Import validates the whole file first and rejects it on the first invalid record. **Merge** keeps the newer card, word state or mistake and de-duplicates logs; **Replace** deletes all user data first.
 
 ## Content layout
 
