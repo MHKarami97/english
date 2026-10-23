@@ -1,3 +1,8 @@
 [
-  { "id": "book1", "title": "Book 1", "path": "data/book1" }
+  { "id": "book1", "title": "Book 1", "path": "data/book1" },
+  { "id": "book2", "title": "Book 2", "path": "data/book2" },
+  { "id": "book3", "title": "Book 3", "path": "data/book3" },
+  { "id": "book4", "title": "Book 4", "path": "data/book4" },
+  { "id": "book5", "title": "Book 5", "path": "data/book5" },
+  { "id": "book6", "title": "Book 6", "path": "data/book6" }
 ]

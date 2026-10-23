@@ -1,7 +1,6 @@
 import type { SettingsRepository, UnitRepository, WordRepository } from '@/domain/contracts';
 import type { Unit, Word } from '@/domain/entities';
 import type { DistractorSelector } from '@/domain/quiz/distractors';
-import { gradeOutcome } from '@/domain/quiz/grading';
 import type { PlacementResult } from '@/domain/quiz/models';
 import {
   PlacementPlanner,
