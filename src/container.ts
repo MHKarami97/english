@@ -1,8 +1,16 @@
 import { BootstrapService } from '@/application/BootstrapService';
 import { LibraryService } from '@/application/LibraryService';
 import { ProgressService } from '@/application/ProgressService';
+import { QueueBuilder } from '@/application/QueueBuilder';
+import { ReviewResetService } from '@/application/ReviewResetService';
 import { SearchService } from '@/application/SearchService';
+import { StreakService } from '@/application/StreakService';
+import { StudyDayService } from '@/application/StudyDayService';
 import { StudyService } from '@/application/StudyService';
+import { StudySessionService } from '@/application/StudySessionService';
+import { StudySettingsService } from '@/application/StudySettingsService';
+import { TodayService } from '@/application/TodayService';
+import { ProgressBackupService } from '@/data/backup/ProgressBackupService';
 import { HttpBookIndex } from '@/data/content/HttpBookIndex';
 import { HttpContentPack } from '@/data/content/HttpContentPack';
 import { LexiDatabase } from '@/data/db/LexiDatabase';
@@ -14,8 +22,17 @@ import {
   DexieUnitRepository,
   DexieWordRepository,
 } from '@/data/repositories';
+import { DexieReviewLedger } from '@/data/review/DexieReviewLedger';
+import {
+  DexieDailyStatsRepository,
+  DexieReviewCardRepository,
+  DexieReviewLogRepository,
+} from '@/data/review/ReviewRepositories';
+import { Sm2Scheduler } from '@/domain/scheduling/Sm2Scheduler';
 import { AudioPlayer } from '@/infrastructure/audio/AudioPlayer';
+import { SystemClock } from '@/infrastructure/clock/SystemClock';
 import { MediaUrlResolver } from '@/infrastructure/media/MediaUrlResolver';
+import { MathRandomSource } from '@/infrastructure/random/MathRandomSource';
 import { StorageEstimator } from '@/infrastructure/storage/StorageEstimator';
 
 // Composition root: the only place that knows which concrete classes implement the domain contracts.
@@ -25,6 +42,16 @@ const unitRepository = new DexieUnitRepository(db);
 const wordRepository = new DexieWordRepository(db);
 const progressRepository = new DexieProgressRepository(db);
 const settingsRepository = new DexieSettingsRepository(db);
+const reviewCards = new DexieReviewCardRepository(db);
+const reviewLogs = new DexieReviewLogRepository(db);
+const dailyStats = new DexieDailyStatsRepository(db);
+const ledger = new DexieReviewLedger(db, reviewCards, reviewLogs, dailyStats);
+
+const clock = new SystemClock();
+const studyDay = new StudyDayService(clock);
+const studySettings = new StudySettingsService(settingsRepository);
+const queueBuilder = new QueueBuilder(reviewCards, unitRepository, wordRepository, progressRepository, new MathRandomSource());
+const streak = new StreakService(dailyStats, studyDay);
 
 export const container = {
   settings: settingsRepository,
@@ -41,6 +68,26 @@ export const container = {
   progress: new ProgressService(progressRepository, settingsRepository),
   study: new StudyService(unitRepository, wordRepository, progressRepository, settingsRepository),
   search: new SearchService(unitRepository, wordRepository),
+  clock,
+  studyDay,
+  studySettings,
+  streak,
+  today: new TodayService(studySettings, studyDay, queueBuilder, dailyStats, reviewLogs, streak),
+  reset: new ReviewResetService(reviewCards, ledger, settingsRepository),
+  backup: new ProgressBackupService(db, __APP_VERSION__),
+  createSession: (): StudySessionService =>
+    new StudySessionService({
+      clock,
+      studyDay,
+      settings: studySettings,
+      queueBuilder,
+      cards: reviewCards,
+      words: wordRepository,
+      stats: dailyStats,
+      ledger,
+      state: settingsRepository,
+      createScheduler: (calendar) => new Sm2Scheduler(calendar),
+    }),
 } as const;
 
 export type Container = typeof container;

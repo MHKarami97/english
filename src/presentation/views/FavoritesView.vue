@@ -10,6 +10,7 @@ import WordRow from '@/presentation/components/WordRow.vue';
 import { useWordList } from '@/presentation/composables/useWordList';
 import { useBooksStore } from '@/presentation/stores/books';
 
+// Rendered as the Favorites tab of the Library screen, so it has no page wrapper or heading of its own.
 const router = useRouter();
 const books = useBooksStore();
 const wordList = useWordList();
@@ -39,10 +40,9 @@ const openCard = (word: Word): void => {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-3xl px-4 py-6 md:px-8 md:py-10">
-    <div class="mb-6 flex items-center justify-between gap-4">
-      <h1 class="font-display text-title font-semibold">Favorites</h1>
-      <RouterLink v-if="words.length" class="btn btn-primary" :to="{ name: 'study-favorites' }">
+  <div>
+    <div v-if="words.length" class="mb-4 flex justify-end">
+      <RouterLink class="btn btn-primary" :to="{ name: 'study-favorites' }">
         <GraduationCap class="size-5" aria-hidden="true" /> Study favorites
       </RouterLink>
     </div>

@@ -1,26 +1,20 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { RouterLink, useRoute, useRouter } from 'vue-router';
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, RotateCw, Star, Volume2, X } from '@lucide/vue';
+import { RouterLink, useRoute } from 'vue-router';
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, RotateCw, Star, X } from '@lucide/vue';
 import { container } from '@/container';
-import ExampleSentence from '@/presentation/components/ExampleSentence.vue';
-import MediaImage from '@/presentation/components/MediaImage.vue';
+import FlashCard from '@/presentation/components/FlashCard.vue';
 import StateMessage from '@/presentation/components/StateMessage.vue';
 import { useAudio } from '@/presentation/composables/useAudio';
 import { useBooksStore } from '@/presentation/stores/books';
 import { useStudyStore } from '@/presentation/stores/study';
 
-const SWIPE_DISTANCE = 80;
-const SWIPE_HINT_DISTANCE = 40;
-
 const route = useRoute();
-const router = useRouter();
 const books = useBooksStore();
 const study = useStudyStore();
 const audio = useAudio();
 
-const stage = ref<HTMLElement | null>(null);
-const drag = ref<HTMLElement | null>(null);
+const flashCard = ref<InstanceType<typeof FlashCard> | null>(null);
 
 const total = computed(() => study.words.length);
 const audioUrl = computed(() => (study.current ? container.media.audio(study.current) : null));
@@ -47,7 +41,7 @@ onBeforeUnmount(() => {
 
 function refocus(event: MouseEvent): void {
   // Keeps Space bound to "flip" after a pointer click left focus on an action button.
-  if (event.detail > 0) stage.value?.focus();
+  if (event.detail > 0) flashCard.value?.focus();
 }
 
 function onKeydown(event: KeyboardEvent): void {
@@ -73,50 +67,6 @@ function onKeydown(event: KeyboardEvent): void {
       void study.toggleFavorite();
       break;
   }
-}
-
-let startX = 0;
-let startY = 0;
-let deltaX = 0;
-let tracking = false;
-let suppressClick = false;
-
-function onPointerDown(event: PointerEvent): void {
-  if (event.pointerType === 'mouse') return;
-  tracking = true;
-  suppressClick = false;
-  startX = event.clientX;
-  startY = event.clientY;
-  deltaX = 0;
-}
-
-function onPointerMove(event: PointerEvent): void {
-  if (!tracking || !drag.value) return;
-  deltaX = event.clientX - startX;
-  if (Math.abs(event.clientY - startY) > Math.abs(deltaX)) return;
-  drag.value.style.transition = 'none';
-  drag.value.style.transform = `translateX(${deltaX}px)`;
-  drag.value.dataset.swipe = deltaX > SWIPE_HINT_DISTANCE ? 'known' : deltaX < -SWIPE_HINT_DISTANCE ? 'unknown' : '';
-}
-
-function endDrag(commit: boolean): void {
-  if (!tracking) return;
-  tracking = false;
-  if (drag.value) {
-    drag.value.style.transition = '';
-    drag.value.style.transform = '';
-    drag.value.dataset.swipe = '';
-  }
-  if (Math.abs(deltaX) > 10) suppressClick = true;
-  if (commit && Math.abs(deltaX) >= SWIPE_DISTANCE) void study.mark(deltaX > 0 ? 'known' : 'unknown');
-}
-
-function onStageClick(): void {
-  if (suppressClick) {
-    suppressClick = false;
-    return;
-  }
-  study.flip();
 }
 </script>
 
@@ -154,41 +104,16 @@ function onStageClick(): void {
 
     <template v-else-if="study.current">
       <div class="flex flex-1 flex-col justify-center py-4">
-        <div
-          ref="stage"
-          class="stage"
-          tabindex="-1"
-          @pointerdown="onPointerDown"
-          @pointermove="onPointerMove"
-          @pointerup="endDrag(true)"
-          @pointercancel="endDrag(false)"
-          @click="onStageClick"
-        >
-          <div ref="drag" class="drag">
-            <div class="flip" :data-flipped="study.flipped">
-              <div class="face face-front items-center justify-center text-center" v-bind="study.flipped ? { inert: '' } : {}">
-                <MediaImage class="w-full max-w-xs rounded-lg" :src="container.media.wordImage(study.current)" :width="4" :height="3" eager />
-                <p class="headword">{{ study.current.word }}</p>
-                <button type="button" class="btn" :disabled="!audioUrl" @click.stop="study.playCurrent()">
-                  <Volume2 class="size-5" aria-hidden="true" /> Play
-                </button>
-                <p v-if="audioFailed" class="text-sm text-muted" role="status">This audio is not saved yet. Connect once to hear it.</p>
-              </div>
-              <div class="face face-back" v-bind="study.flipped ? {} : { inert: '' }">
-                <div class="flex flex-wrap items-baseline gap-x-3">
-                  <p class="headword !text-4xl">{{ study.current.word }}</p>
-                  <p v-if="study.current.pos" class="text-muted italic">{{ study.current.pos }}</p>
-                </div>
-                <p v-if="study.current.ipa" class="ipa">{{ study.current.ipa }}</p>
-                <p class="text-lead">{{ study.current.definition }}</p>
-                <ExampleSentence class="border-s-2 border-line ps-4 text-lead" :segments="study.current.exampleSegments" />
-                <button type="button" class="btn mt-auto self-start" :disabled="!audioUrl" @click.stop="study.playCurrent()">
-                  <Volume2 class="size-5" aria-hidden="true" /> Play
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <FlashCard
+          ref="flashCard"
+          :word="study.current"
+          :flipped="study.flipped"
+          :swipeable="true"
+          :audio-failed="audioFailed"
+          @flip="study.flip()"
+          @play="study.playCurrent()"
+          @swipe="study.mark($event)"
+        />
         <p class="mt-3 hidden text-center text-sm text-muted md:block">Space flips, arrows move, P plays, F favorites.</p>
       </div>
 

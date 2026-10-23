@@ -6,17 +6,19 @@ import { APP_NAME } from '@/config/app';
 import { container } from '@/container';
 import MediaImage from '@/presentation/components/MediaImage.vue';
 import StateMessage from '@/presentation/components/StateMessage.vue';
+import TodayCard from '@/presentation/components/TodayCard.vue';
 import { useBooksStore } from '@/presentation/stores/books';
 import { useCatalogStore } from '@/presentation/stores/catalog';
+import { useTodayStore } from '@/presentation/stores/today';
 
 const books = useBooksStore();
 const catalog = useCatalogStore();
-const firstUnit = computed(() => catalog.snapshot?.units[0] ?? null);
+const today = useTodayStore();
 const previewUnits = computed(() => catalog.snapshot?.units.slice(0, 8) ?? []);
 
 onMounted(async () => {
   const bookId = books.activeBookId;
-  if (bookId) await Promise.all([catalog.load(bookId), catalog.loadContinue(bookId)]);
+  if (bookId) await Promise.all([catalog.load(bookId), catalog.loadContinue(bookId), today.load(bookId)]);
 });
 </script>
 
@@ -27,37 +29,31 @@ onMounted(async () => {
       <p class="text-muted">{{ books.activeBook?.title }}</p>
     </header>
 
-    <StateMessage v-if="catalog.status === 'error'" kind="error" title="Could not read your library" body="Your saved words could not be opened. Reload the page and try again." />
+    <StateMessage v-if="catalog.status === 'error' || today.status === 'error'" kind="error" title="Could not read your library" body="Your saved words could not be opened. Reload the page and try again." />
 
     <div v-else class="lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-10">
       <div>
-        <section aria-labelledby="continue-title" class="card overflow-hidden">
-          <div v-if="catalog.status === 'loading'" class="p-6" aria-hidden="true">
-            <div class="skeleton aspect-[16/9] w-full" />
-            <div class="skeleton mt-5 h-6 w-1/2" />
-            <div class="skeleton mt-3 h-4 w-1/3" />
+        <TodayCard v-if="today.summary" :summary="today.summary" />
+        <div v-else class="card p-6" aria-hidden="true">
+          <div class="skeleton h-4 w-16" />
+          <div class="skeleton mt-3 h-8 w-2/3" />
+          <div class="skeleton mt-6 h-11 w-40" />
+        </div>
+
+        <section v-if="catalog.continueTarget" aria-labelledby="continue-title" class="card mt-4 flex items-center gap-4 p-3">
+          <MediaImage class="size-16 shrink-0 rounded-md" :src="container.media.unitImage(catalog.continueTarget.unit)" :width="64" :height="64" />
+          <div class="min-w-0 flex-1">
+            <h2 id="continue-title" class="text-sm font-medium text-muted">Continue browsing</h2>
+            <p class="truncate font-medium">{{ catalog.continueTarget.unit.title }}</p>
+            <p class="truncate text-sm text-muted">Last card: {{ catalog.continueTarget.word.word }}</p>
           </div>
-          <template v-else-if="catalog.continueTarget">
-            <MediaImage class="w-full" :src="container.media.unitImage(catalog.continueTarget.unit)" :width="16" :height="9" eager />
-            <div class="p-5 md:p-6">
-              <h2 id="continue-title" class="text-sm font-medium text-muted">Continue</h2>
-              <p class="mt-1 font-display text-title font-semibold">{{ catalog.continueTarget.unit.title }}</p>
-              <p class="text-muted">Last card: {{ catalog.continueTarget.word.word }}</p>
-              <RouterLink
-                class="btn btn-primary mt-5 w-full md:w-auto"
-                :to="{ name: 'study-unit', params: { unitId: catalog.continueTarget.unit.id }, query: { word: catalog.continueTarget.word.id } }"
-              >
-                Resume this card <ArrowRight class="size-4 rtl:-scale-x-100" aria-hidden="true" />
-              </RouterLink>
-            </div>
-          </template>
-          <div v-else class="p-5 md:p-6">
-            <h2 id="continue-title" class="font-display text-title font-semibold">Start your first unit</h2>
-            <p class="mt-1 text-muted">Each unit holds about twenty words with pictures and audio.</p>
-            <RouterLink v-if="firstUnit" class="btn btn-primary mt-5 w-full md:w-auto" :to="{ name: 'study-unit', params: { unitId: firstUnit.unit.id } }">
-              Study {{ firstUnit.unit.title }}
-            </RouterLink>
-          </div>
+          <RouterLink
+            class="icon-btn text-accent"
+            aria-label="Resume this card"
+            :to="{ name: 'study-unit', params: { unitId: catalog.continueTarget.unit.id }, query: { word: catalog.continueTarget.word.id } }"
+          >
+            <ArrowRight class="size-5 rtl:-scale-x-100" aria-hidden="true" />
+          </RouterLink>
         </section>
 
         <dl v-if="catalog.snapshot" class="mt-6 flex gap-10">
