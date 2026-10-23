@@ -1,0 +1,315 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lexi Serif';
+  src: url('/fonts/SourceSerif4-latin.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074,
+    U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Lexi Serif';
+  src: url('/fonts/SourceSerif4-latin-ext.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+:root {
+  --paper: #f6f1e7;
+  --surface: #fbf8f1;
+  --ink: #1f1b16;
+  --muted: #6b6256;
+  --line: #ddd3c1;
+  --accent: #b4401f;
+  --on-accent: #fbf8f1;
+  --known: #3f6b46;
+  --unknown: #8a5a12;
+  --fav: #8f6200;
+  --shadow-paper: 0 1px 0 rgb(31 27 22 / 0.04), 0 6px 12px -8px rgb(60 40 20 / 0.22);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --font-ui: 'Vazirmatn', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  /* To use Vazirmatn for headwords, change this single line to: var(--font-ui) */
+  --font-headword: 'Lexi Serif', 'Iowan Old Style', Georgia, serif;
+  --font-ipa: 'Lexi Serif', 'Segoe UI', 'Noto Sans', 'DejaVu Sans', Arial, sans-serif;
+}
+
+.dark {
+  --paper: #16130f;
+  --surface: #1e1a15;
+  --ink: #ece4d6;
+  --muted: #a79c8b;
+  --line: #342e25;
+  --accent: #e0805a;
+  --on-accent: #1a120c;
+  --known: #86b98e;
+  --unknown: #d9a45b;
+  --fav: #e0b44f;
+  --shadow-paper: 0 1px 0 rgb(0 0 0 / 0.3), 0 6px 12px -8px rgb(0 0 0 / 0.6);
+}
+
+@theme inline {
+  --color-*: initial;
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-known: var(--known);
+  --color-unknown: var(--unknown);
+  --color-fav: var(--fav);
+  --font-sans: var(--font-ui);
+  --font-display: var(--font-headword);
+  --text-title: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+  --text-lead: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
+}
+
+@layer base {
+  html {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    min-block-size: 100dvh;
+    overflow-x: clip;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-block-size: 2.75rem;
+    padding-inline: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color 150ms var(--ease),
+      border-color 150ms var(--ease);
+  }
+  .btn:hover {
+    border-color: var(--muted);
+  }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
+  .btn-primary:hover {
+    border-color: var(--accent);
+    filter: brightness(0.93);
+  }
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background-color 150ms var(--ease), color 150ms var(--ease);
+  }
+  .icon-btn:hover {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+  }
+  .icon-btn[aria-pressed='true'] {
+    color: var(--fav);
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-paper);
+  }
+  .skeleton {
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+    border-radius: 0.375rem;
+  }
+  .media-box {
+    overflow: hidden;
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
+  .media-box > img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .bar {
+    block-size: 4px;
+    border-radius: 2px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .bar > span {
+    display: block;
+    block-size: 100%;
+    background: var(--known);
+  }
+  .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    min-block-size: 3.5rem;
+    padding-inline: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+    border-radius: 0.5rem;
+  }
+  .nav-link.router-link-active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  @media (min-width: 64rem) {
+    .nav-link {
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 0.75rem;
+      padding-inline: 0.75rem;
+      font-size: 0.9375rem;
+    }
+  }
+  .headword {
+    font-family: var(--font-headword);
+    font-size: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem);
+    line-height: 1.05;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .ipa {
+    font-family: var(--font-ipa);
+    font-size: 1.25rem;
+    color: var(--muted);
+  }
+  .example-hl {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.22em;
+  }
+  .dialog {
+    margin: auto;
+    max-inline-size: min(28rem, calc(100vw - 2rem));
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .dialog::backdrop {
+    background: rgb(20 15 10 / 0.55);
+  }
+
+  .stage {
+    touch-action: pan-y;
+    outline-offset: 4px;
+  }
+  .drag {
+    transition: transform 200ms var(--ease);
+  }
+  .drag[data-swipe='known'] .flip {
+    outline: 2px solid var(--known);
+  }
+  .drag[data-swipe='unknown'] .flip {
+    outline: 2px solid var(--unknown);
+  }
+  .flip {
+    position: relative;
+    block-size: clamp(22rem, 58dvh, 36rem);
+    border-radius: 1rem;
+    transform-style: preserve-3d;
+    transition: transform 250ms var(--ease);
+  }
+  .flip[data-flipped='true'] {
+    transform: rotateY(180deg);
+  }
+  .face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: clamp(1rem, 4vw, 2rem);
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    box-shadow: var(--shadow-paper);
+    backface-visibility: hidden;
+  }
+  .face-back {
+    transform: rotateY(180deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+  .drag {
+    transition: none;
+  }
+  .flip,
+  .flip[data-flipped='true'] {
+    transform: none;
+    transition: none;
+  }
+  .face {
+    backface-visibility: visible;
+    transition: opacity 150ms linear;
+  }
+  .face-back {
+    transform: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .flip[data-flipped='true'] .face-front {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .flip[data-flipped='true'] .face-back {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
