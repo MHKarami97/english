@@ -8,4 +8,8 @@ export const SettingKey = {
   quizSession: 'quizSession',
   placementUndo: 'placementUndo',
   placementPromptDismissed: 'placementPromptDismissed',
+  installDismissed: 'installDismissed',
+  lastExportAt: 'lastExportAt',
+  backupReminderDismissedAt: 'backupReminderDismissedAt',
+  orphanStash: 'orphanStash',
 } as const;

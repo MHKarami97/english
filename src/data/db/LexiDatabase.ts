@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { Book, Knowledge, Unit, Word } from '@/domain/entities';
+import type { DownloadRecord } from '@/domain/download/models';
 import { splitPos } from '@/domain/parsing/pronunciation';
 import type { Mistake, PlacementResult, QuizAnswerLog, QuizSession } from '@/domain/quiz/models';
 import type { ReviewCard } from '@/domain/scheduling/types';
@@ -40,6 +41,7 @@ export class LexiDatabase extends Dexie {
   declare readonly quizAnswerLogs: EntityTable<QuizAnswerLog, 'id'>;
   declare readonly mistakes: EntityTable<Mistake, 'wordId'>;
   declare readonly placementResults: EntityTable<PlacementResult, 'id'>;
+  declare readonly downloadRecords: EntityTable<DownloadRecord, 'unitId'>;
 
   constructor(name = 'lexi-book-db') {
     super(name);
@@ -76,5 +78,10 @@ export class LexiDatabase extends Dexie {
             word.posTags = splitPos(word.pos ?? '').map((tag) => tag.toLowerCase());
           }),
       );
+    // Version 4 only adds a table, so no upgrade function is needed and every existing row stays as it is.
+    // Unit ids are globally unique ("<bookId>:<n>"), so the unit id alone is the primary key.
+    this.version(4).stores({
+      downloadRecords: 'unitId, bookId, status',
+    });
   }
 }
