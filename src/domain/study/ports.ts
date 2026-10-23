@@ -9,6 +9,8 @@ export interface ReviewCardRepository {
   /** Cards whose dueAt is strictly before `dueBefore`, oldest first. */
   listDue(bookId: string, dueBefore: number, limit: number): Promise<readonly ReviewCard[]>;
   countDue(bookId: string, dueBefore: number): Promise<number>;
+  /** Earliest dueAt at or after `from`, or null when nothing is scheduled that far ahead. */
+  earliestDueAfter(bookId: string, from: number): Promise<number | null>;
   listWordIds(bookId: string): Promise<readonly string[]>;
   removeByUnit(unitId: string): Promise<number>;
   clear(): Promise<void>;
@@ -47,4 +49,6 @@ export interface RevertEntry {
 export interface ReviewLedger {
   record(entry: LedgerEntry): Promise<number>;
   revert(entry: RevertEntry): Promise<void>;
+  /** Clears cards, logs and daily stats in one transaction. */
+  resetAll(): Promise<void>;
 }

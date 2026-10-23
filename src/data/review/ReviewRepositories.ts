@@ -38,6 +38,14 @@ export class DexieReviewCardRepository implements ReviewCardRepository {
     return this.dueRange(bookId, dueBefore).count();
   }
 
+  async earliestDueAfter(bookId: string, from: number): Promise<number | null> {
+    const card = await this.db.reviewCards
+      .where('[bookId+dueAt]')
+      .between([bookId, from], [bookId, Dexie.maxKey], true, true)
+      .first();
+    return card?.dueAt ?? null;
+  }
+
   listWordIds(bookId: string): Promise<readonly string[]> {
     return this.db.reviewCards.where('bookId').equals(bookId).primaryKeys();
   }

@@ -41,4 +41,12 @@ export class DexieReviewLedger implements ReviewLedger {
       await this.stats.put(applyLog(stats, entry.log, -1));
     });
   }
+
+  resetAll(): Promise<void> {
+    return this.db.transaction('rw', this.db.reviewCards, this.db.reviewLogs, this.db.dailyStats, async () => {
+      await this.cards.clear();
+      await this.logs.clear();
+      await this.stats.clear();
+    });
+  }
 }
