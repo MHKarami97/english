@@ -6,6 +6,7 @@ import vue from '@vitejs/plugin-vue';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { APP_DESCRIPTION, APP_NAME } from './src/config/app';
+import { mediaManifest } from './build/mediaManifestPlugin';
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8')) as { version: string };
 
@@ -32,17 +33,6 @@ function spaFallback404(): Plugin {
   };
 }
 
-const mediaCache = (cacheName: string, pattern: RegExp, maxEntries: number) => ({
-  urlPattern: ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
-    sameOrigin && pattern.test(url.pathname),
-  handler: 'CacheFirst' as const,
-  options: {
-    cacheName,
-    cacheableResponse: { statuses: [200] },
-    expiration: { maxEntries, maxAgeSeconds: 60 * 60 * 24 * 90, purgeOnQuotaError: true },
-  },
-});
-
 export default defineConfig({
   base: '/',
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
@@ -53,7 +43,13 @@ export default defineConfig({
     tailwindcss(),
     htmlAppName(),
     spaFallback404(),
+    mediaManifest(),
     VitePWA({
+      // injectManifest: the media routes need a two-cache lookup, a never-evict download cache and
+      // cache cleanup on activation, which generateSW cannot express.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       registerType: 'prompt',
       injectRegister: false,
       manifest: {
@@ -72,32 +68,10 @@ export default defineConfig({
           { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: {
+      injectManifest: {
+        rollupFormat: 'iife',
         globPatterns: ['**/*.{js,css,html,woff2,svg}', 'icons/*.png'],
         globIgnores: ['data/**'],
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/data\//],
-        cleanupOutdatedCaches: true,
-        runtimeCaching: [
-          {
-            urlPattern: ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
-              sameOrigin && /\/data\/(books|[^/]+\/data)\.json$/.test(url.pathname),
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'lexi-content-json',
-              cacheableResponse: { statuses: [200] },
-              expiration: { maxEntries: 32 },
-            },
-          },
-          {
-            ...mediaCache('lexi-audio', /\/audio\/.+\.(mp3|ogg|m4a|wav)$/i, 1500),
-            options: {
-              ...mediaCache('lexi-audio', /x/, 1500).options,
-              rangeRequests: true,
-            },
-          },
-          mediaCache('lexi-images', /\/images\/.+\.(jpe?g|png|webp|avif|gif)$/i, 2500),
-        ],
       },
     }),
   ],
