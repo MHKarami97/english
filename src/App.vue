@@ -4,6 +4,7 @@ import { RouterView, useRoute } from 'vue-router';
 import { WifiOff } from '@lucide/vue';
 import NavBar from '@/presentation/components/NavBar.vue';
 import ImportScreen from '@/presentation/components/ImportScreen.vue';
+import TopBar from '@/presentation/components/TopBar.vue';
 import UpdateToast from '@/presentation/components/UpdateToast.vue';
 import { useOnline } from '@/presentation/composables/useOnline';
 import { useBooksStore } from '@/presentation/stores/books';
@@ -16,6 +17,7 @@ const settings = useSettingsStore();
 const pwa = usePwaStore();
 const online = useOnline();
 const immersive = computed(() => route.meta.immersive === true);
+const showTopBar = computed(() => books.phase === 'ready' && !immersive.value && route.name !== 'search');
 
 onMounted(() => {
   void settings.init();
@@ -28,6 +30,7 @@ onMounted(() => {
   <div class="min-h-dvh md:flex">
     <NavBar v-if="books.phase === 'ready'" :hide-on-phone="immersive" />
     <div class="min-w-0 flex-1">
+      <TopBar v-if="showTopBar" />
       <p
         v-if="!online"
         role="status"

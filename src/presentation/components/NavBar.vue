@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-import { CalendarCheck, House, Library, Search, Settings } from '@lucide/vue';
+import { CalendarCheck, Dumbbell, House, Library, Settings } from '@lucide/vue';
 import { APP_NAME } from '@/config/app';
 
 defineProps<{ hideOnPhone: boolean }>();
@@ -8,8 +8,8 @@ defineProps<{ hideOnPhone: boolean }>();
 const items = [
   { to: '/', label: 'Home', icon: House },
   { to: '/library', label: 'Library', icon: Library },
-  { to: '/search', label: 'Search', icon: Search },
   { to: '/today', label: 'Today', icon: CalendarCheck },
+  { to: '/practice', label: 'Practice', icon: Dumbbell },
   { to: '/settings', label: 'Settings', icon: Settings },
 ] as const;
 </script>

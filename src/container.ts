@@ -124,8 +124,7 @@ export const container = {
       createScheduler: (calendar) => new Sm2Scheduler(calendar),
     }),
   quizSettings,
-  practiceHub: new PracticeHubService(mistakes, placements, settingsRepository),
-  mistakes,
+  practiceHub: new PracticeHubService(mistakes, placements, settingsRepository, wordRepository),
   createQuiz: (): QuizSessionService =>
     new QuizSessionService({
       clock,
