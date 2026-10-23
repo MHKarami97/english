@@ -1,8 +1,14 @@
 import { BootstrapService } from '@/application/BootstrapService';
 import { LibraryService } from '@/application/LibraryService';
+import { MatchingGame } from '@/application/MatchingGame';
+import { PlacementTestService } from '@/application/PlacementTestService';
+import { PracticeHubService } from '@/application/PracticeHubService';
 import { ProgressService } from '@/application/ProgressService';
 import { QueueBuilder } from '@/application/QueueBuilder';
+import { QuizSessionService } from '@/application/QuizSessionService';
+import { QuizSettingsService } from '@/application/QuizSettingsService';
 import { ReviewResetService } from '@/application/ReviewResetService';
+import { ScopeResolver } from '@/application/ScopeResolver';
 import { SearchService } from '@/application/SearchService';
 import { StreakService } from '@/application/StreakService';
 import { StudyDayService } from '@/application/StudyDayService';
@@ -15,6 +21,15 @@ import { HttpBookIndex } from '@/data/content/HttpBookIndex';
 import { HttpContentPack } from '@/data/content/HttpContentPack';
 import { LexiDatabase } from '@/data/db/LexiDatabase';
 import { BookImporter } from '@/data/import/BookImporter';
+import { DexieQuizLedger } from '@/data/quiz/DexieQuizLedger';
+import { DexieDistractorPool } from '@/data/quiz/DexieDistractorPool';
+import { DexieKnownMarker, DexieWordQueries } from '@/data/quiz/DexieWordQueries';
+import {
+  DexieMistakeRepository,
+  DexiePlacementRepository,
+  DexieQuizAnswerLogRepository,
+  DexieQuizSessionRepository,
+} from '@/data/quiz/QuizRepositories';
 import {
   DexieBookRepository,
   DexieProgressRepository,
@@ -28,9 +43,13 @@ import {
   DexieReviewCardRepository,
   DexieReviewLogRepository,
 } from '@/data/review/ReviewRepositories';
+import { TieredDistractorSelector } from '@/domain/quiz/distractors';
+import { createDefaultQuestionFactory } from '@/domain/quiz/strategies';
+import { createSeededRandom, type RandomSource } from '@/domain/random';
 import { Sm2Scheduler } from '@/domain/scheduling/Sm2Scheduler';
 import { AudioPlayer } from '@/infrastructure/audio/AudioPlayer';
 import { SystemClock } from '@/infrastructure/clock/SystemClock';
+import { BrowserMediaAvailability } from '@/infrastructure/media/BrowserMediaAvailability';
 import { MediaUrlResolver } from '@/infrastructure/media/MediaUrlResolver';
 import { MathRandomSource } from '@/infrastructure/random/MathRandomSource';
 import { StorageEstimator } from '@/infrastructure/storage/StorageEstimator';
@@ -52,10 +71,26 @@ const studyDay = new StudyDayService(clock);
 const studySettings = new StudySettingsService(settingsRepository);
 const queueBuilder = new QueueBuilder(reviewCards, unitRepository, wordRepository, progressRepository, new MathRandomSource());
 const streak = new StreakService(dailyStats, studyDay);
+const media = new MediaUrlResolver();
+
+// Practice (Phase 3). Nothing below imports the review ledger or the scheduler: quiz results
+// can never change an SM-2 schedule.
+const quizSessions = new DexieQuizSessionRepository(db);
+const quizLogs = new DexieQuizAnswerLogRepository(db);
+const mistakes = new DexieMistakeRepository(db);
+const placements = new DexiePlacementRepository(db);
+const quizLedger = new DexieQuizLedger(db, quizLogs, mistakes);
+const wordQueries = new DexieWordQueries(db);
+const quizSettings = new QuizSettingsService(settingsRepository);
+const questionFactory = createDefaultQuestionFactory();
+const seedSource = new MathRandomSource();
+const scopeResolver = new ScopeResolver(wordQueries, progressRepository, reviewCards, mistakes, studyDay, studySettings);
+const createSelector = (random: RandomSource) =>
+  new TieredDistractorSelector(new DexieDistractorPool(db, unitRepository, random), random);
 
 export const container = {
   settings: settingsRepository,
-  media: new MediaUrlResolver(),
+  media,
   audio: new AudioPlayer(),
   storage: new StorageEstimator(),
   bootstrap: new BootstrapService(
@@ -87,6 +122,49 @@ export const container = {
       ledger,
       state: settingsRepository,
       createScheduler: (calendar) => new Sm2Scheduler(calendar),
+    }),
+  quizSettings,
+  practiceHub: new PracticeHubService(mistakes, placements, settingsRepository),
+  mistakes,
+  createQuiz: (): QuizSessionService =>
+    new QuizSessionService({
+      clock,
+      seedSource,
+      createRandom: createSeededRandom,
+      createSelector,
+      factory: questionFactory,
+      resolver: scopeResolver,
+      words: wordRepository,
+      ledger: quizLedger,
+      sessions: quizSessions,
+      state: settingsRepository,
+      settings: quizSettings,
+      media: new BrowserMediaAvailability(media),
+    }),
+  createMatching: (): MatchingGame =>
+    new MatchingGame({
+      clock,
+      seedSource,
+      createRandom: createSeededRandom,
+      resolver: scopeResolver,
+      words: wordRepository,
+      ledger: quizLedger,
+      sessions: quizSessions,
+    }),
+  createPlacement: (): PlacementTestService =>
+    new PlacementTestService({
+      clock,
+      seedSource,
+      createRandom: createSeededRandom,
+      createSelector,
+      factory: questionFactory,
+      units: unitRepository,
+      words: wordRepository,
+      queries: wordQueries,
+      results: placements,
+      studySettings,
+      marker: new DexieKnownMarker(db),
+      state: settingsRepository,
     }),
 } as const;
 
