@@ -1,5 +1,5 @@
-import type { UserWordState } from '@/domain/entities';
-import type { LexiDatabase, StoredWordState } from '../db/LexiDatabase';
+import type { LexiDatabase } from '../db/LexiDatabase';
+import { fromStoredState, toStoredState } from '../wordStateMapping';
 import { BACKUP_FORMAT, BACKUP_VERSION, type ProgressBackup } from './backupSchema';
 
 export type ImportMode = 'merge' | 'replace';
@@ -10,25 +10,14 @@ export interface ImportSummary {
   readonly dailyStats: number;
   readonly wordStates: number;
   readonly settings: number;
+  readonly quizSessions: number;
+  readonly quizAnswers: number;
+  readonly mistakes: number;
+  readonly placementResults: number;
 }
 
-const toDomain = (row: StoredWordState): UserWordState => ({
-  wordId: row.wordId,
-  bookId: row.bookId,
-  isFavorite: row.favorite === 1,
-  knowledge: row.knowledge,
-  updatedAt: row.updatedAt,
-});
-
-const toStored = (state: UserWordState): StoredWordState => ({
-  wordId: state.wordId,
-  bookId: state.bookId,
-  favorite: state.isFavorite ? 1 : 0,
-  knowledge: state.knowledge,
-  updatedAt: state.updatedAt,
-});
-
 const logKey = (wordId: string, reviewedAt: number): string => `${wordId}|${reviewedAt}`;
+const quizLogKey = (sessionId: string, wordId: string, answeredAt: number): string => `${sessionId}|${wordId}|${answeredAt}`;
 
 /** Exports and imports user data only; book content is never part of a backup. */
 export class ProgressBackupService {
@@ -38,37 +27,59 @@ export class ProgressBackupService {
   ) {}
 
   async export(now: number): Promise<ProgressBackup> {
-    const [reviewCards, reviewLogs, dailyStats, wordStates, settings] = await Promise.all([
-      this.db.reviewCards.toArray(),
-      this.db.reviewLogs.toArray(),
-      this.db.dailyStats.toArray(),
-      this.db.userWordState.toArray(),
-      this.db.settings.toArray(),
-    ]);
+    const [reviewCards, reviewLogs, dailyStats, wordStates, settings, quizSessions, quizAnswerLogs, mistakes, placementResults] =
+      await Promise.all([
+        this.db.reviewCards.toArray(),
+        this.db.reviewLogs.toArray(),
+        this.db.dailyStats.toArray(),
+        this.db.userWordState.toArray(),
+        this.db.settings.toArray(),
+        this.db.quizSessions.toArray(),
+        this.db.quizAnswerLogs.toArray(),
+        this.db.mistakes.toArray(),
+        this.db.placementResults.toArray(),
+      ]);
     return {
       format: BACKUP_FORMAT,
       version: BACKUP_VERSION,
       exportedAt: now,
       appVersion: this.appVersion,
-      data: { reviewCards, reviewLogs, dailyStats, userWordStates: wordStates.map(toDomain), settings },
+      data: {
+        reviewCards,
+        reviewLogs,
+        dailyStats,
+        userWordStates: wordStates.map(fromStoredState),
+        settings,
+        quizSessions,
+        quizAnswerLogs,
+        mistakes,
+        placementResults,
+      },
     };
   }
 
   /**
-   * merge: the newer record wins per word (by last review / update time), logs are de-duplicated,
-   * daily counters take the larger value, and existing settings are kept.
+   * merge: the newer record wins per word (by last review, update or wrong-answer time), logs are
+   * de-duplicated, daily counters take the larger value, and existing settings are kept.
    * replace: all user data is cleared first, then the file is written.
    */
   async import(backup: ProgressBackup, mode: ImportMode): Promise<ImportSummary> {
     const db = this.db;
     const { data } = backup;
-    return db.transaction('rw', [db.reviewCards, db.reviewLogs, db.dailyStats, db.userWordState, db.settings], async () => {
+    const tables = [
+      db.reviewCards,
+      db.reviewLogs,
+      db.dailyStats,
+      db.userWordState,
+      db.settings,
+      db.quizSessions,
+      db.quizAnswerLogs,
+      db.mistakes,
+      db.placementResults,
+    ];
+    return db.transaction('rw', tables, async () => {
       if (mode === 'replace') {
-        await db.reviewCards.clear();
-        await db.reviewLogs.clear();
-        await db.dailyStats.clear();
-        await db.userWordState.clear();
-        await db.settings.clear();
+        for (const table of tables) await table.clear();
       }
 
       const existingCards = await db.reviewCards.bulkGet(data.reviewCards.map((card) => card.wordId));
@@ -104,12 +115,35 @@ export class ProgressBackupService {
           const current = existingStates[index];
           return !current || state.updatedAt > current.updatedAt;
         })
-        .map(toStored);
+        .map(toStoredState);
       await db.userWordState.bulkPut(states);
 
       const existingSettings = await db.settings.bulkGet(data.settings.map((setting) => setting.key));
       const settings = data.settings.filter((_, index) => mode === 'replace' || !existingSettings[index]);
       await db.settings.bulkPut(settings.map((setting) => ({ key: setting.key, value: setting.value })));
+
+      const existingSessions = await db.quizSessions.bulkGet(data.quizSessions.map((session) => session.id));
+      const sessions = data.quizSessions.filter((_, index) => !existingSessions[index]);
+      await db.quizSessions.bulkPut(sessions);
+
+      const knownQuizLogs = new Set(
+        (await db.quizAnswerLogs.toArray()).map((log) => quizLogKey(log.sessionId, log.wordId, log.answeredAt)),
+      );
+      const quizLogs = data.quizAnswerLogs
+        .filter((log) => !knownQuizLogs.has(quizLogKey(log.sessionId, log.wordId, log.answeredAt)))
+        .map(({ id: _id, ...log }) => log);
+      await db.quizAnswerLogs.bulkAdd(quizLogs);
+
+      const existingMistakes = await db.mistakes.bulkGet(data.mistakes.map((mistake) => mistake.wordId));
+      const mistakes = data.mistakes.filter((mistake, index) => {
+        const current = existingMistakes[index];
+        return !current || mistake.lastWrongAt > current.lastWrongAt;
+      });
+      await db.mistakes.bulkPut(mistakes);
+
+      const existingPlacements = await db.placementResults.bulkGet(data.placementResults.map((result) => result.id));
+      const placements = data.placementResults.filter((_, index) => !existingPlacements[index]);
+      await db.placementResults.bulkPut(placements);
 
       return {
         reviewCards: cards.length,
@@ -117,6 +151,10 @@ export class ProgressBackupService {
         dailyStats: stats.length,
         wordStates: states.length,
         settings: settings.length,
+        quizSessions: sessions.length,
+        quizAnswers: quizLogs.length,
+        mistakes: mistakes.length,
+        placementResults: placements.length,
       };
     });
   }

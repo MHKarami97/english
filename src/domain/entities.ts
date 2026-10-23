@@ -32,6 +32,8 @@ export interface Word {
   readonly word: string;
   readonly ipa: string;
   readonly pos: string;
+  /** Lower-case parts of speech split out of `pos`; indexed so distractors can be found by POS. */
+  readonly posTags: readonly string[];
   readonly definition: string;
   readonly exampleSegments: readonly ExampleSegment[];
   readonly translationFa: string;

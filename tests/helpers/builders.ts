@@ -39,6 +39,7 @@ export const makeWord = (unitOrder: number, order: number, overrides: Partial<Wo
   word: `word-${unitOrder}-${order}`,
   ipa: '',
   pos: 'n.',
+  posTags: ['n.'],
   definition: '',
   exampleSegments: [],
   translationFa: '',

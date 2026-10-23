@@ -8,8 +8,8 @@ afterEach(async () => {
   await Dexie.delete(name);
 });
 
-describe('Dexie v1 to v2 migration', () => {
-  it('keeps Phase 1 user data and adds empty review tables', async () => {
+describe('Dexie upgrade to the current version', () => {
+  it('keeps Phase 1 and Phase 2 data, adds empty quiz tables and fills posTags', async () => {
     const legacy = new Dexie(name);
     legacy.version(1).stores({
       books: 'id',
@@ -19,25 +19,32 @@ describe('Dexie v1 to v2 migration', () => {
       settings: 'key',
       importState: 'bookId',
     });
+    legacy.version(2).stores({
+      reviewCards: 'wordId, bookId, unitId, [bookId+dueAt], [bookId+state]',
+      reviewLogs: '++id, wordId, reviewedAt, [bookId+reviewedAt]',
+      dailyStats: 'dateKey',
+    });
     await legacy.table('userWordState').bulkPut([
       { wordId: 'b:1:1', bookId: 'b', favorite: 1, knowledge: 'known', updatedAt: 10 },
       { wordId: 'b:1:2', bookId: 'b', favorite: 0, knowledge: 'unknown', updatedAt: 20 },
     ]);
     await legacy.table('settings').put({ key: 'autoPlayOnFlip', value: true });
+    await legacy.table('words').put({ id: 'b:1:1', bookId: 'b', unitId: 'b:1', pos: 'n. v.' });
+    await legacy.table('reviewCards').put({ wordId: 'b:1:1', bookId: 'b', unitId: 'b:1', dueAt: 5 });
     legacy.close();
 
     const db = new LexiDatabase(name);
     await db.open();
 
-    expect(db.verno).toBe(2);
+    expect(db.verno).toBe(3);
     expect(await db.userWordState.count()).toBe(2);
     expect((await db.userWordState.get('b:1:1'))?.favorite).toBe(1);
-    expect(await db.userWordState.where('[bookId+favorite]').equals(['b', 1]).primaryKeys()).toEqual(['b:1:1']);
-    expect(await db.userWordState.where('[bookId+knowledge]').equals(['b', 'unknown']).count()).toBe(1);
     expect((await db.settings.get('autoPlayOnFlip'))?.value).toBe(true);
-    expect(await db.reviewCards.count()).toBe(0);
-    expect(await db.reviewLogs.count()).toBe(0);
-    expect(await db.dailyStats.count()).toBe(0);
+    expect((await db.reviewCards.get('b:1:1'))?.dueAt).toBe(5);
+    expect((await db.words.get('b:1:1'))?.posTags).toEqual(['n.', 'v.']);
+    expect(await db.words.where('posTags').equals('v.').count()).toBe(1);
+    expect(await db.quizSessions.count()).toBe(0);
+    expect(await db.mistakes.count()).toBe(0);
     db.close();
   });
 });
