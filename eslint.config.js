@@ -21,6 +21,11 @@ export default [
       'no-var': 'error',
       'prefer-const': 'error',
       'vue/multi-word-component-names': 'off',
+      "no-useless-assignment": "off",
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { varsIgnorePattern: '^_', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
     },
   },
   prettier,
