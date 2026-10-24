@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { ArrowLeft, Undo2 } from '@lucide/vue';
 import { container } from '@/container';
 import type { Rating } from '@/domain/scheduling/types';
@@ -25,6 +26,7 @@ const RATING_KEYS: Readonly<Record<string, Rating>> = {
   Numpad4: 'easy',
 };
 
+const { t } = useI18n();
 const route = useRoute();
 const books = useBooksStore();
 const review = useReviewStore();
@@ -84,29 +86,29 @@ function studyMore(): void {
 <template>
   <section class="mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-8 md:py-8" aria-labelledby="review-title">
     <header class="flex items-center gap-2">
-      <RouterLink class="icon-btn" :to="{ name: 'today' }" aria-label="Back to Today"><ArrowLeft class="size-5 rtl:-scale-x-100" aria-hidden="true" /></RouterLink>
+      <RouterLink class="icon-btn" :to="{ name: 'today' }" :aria-label="t('review.back')"><ArrowLeft class="size-5 rtl:-scale-x-100" aria-hidden="true" /></RouterLink>
       <div class="min-w-0 flex-1">
-        <h1 id="review-title" class="text-sm font-medium text-muted">Review</h1>
+        <h1 id="review-title" class="text-sm font-medium text-muted">{{ t('review.title') }}</h1>
         <p v-if="view && view.status === 'active'" class="text-sm tabular-nums" aria-live="polite">
-          {{ view.remaining }} left<span v-if="view.resumed" class="text-muted"> (picked up where you left off)</span>
+          {{ t('review.left', { n: view.remaining }) }}<span v-if="view.resumed" class="text-muted"> {{ t('review.resumed') }}</span>
         </p>
       </div>
-      <button type="button" class="icon-btn" aria-label="Undo last answer (U)" :disabled="!view?.canUndo" @click="review.undo()">
+      <button type="button" class="icon-btn" :aria-label="t('review.undo')" :disabled="!view?.canUndo" @click="review.undo()">
         <Undo2 class="size-5" aria-hidden="true" />
       </button>
     </header>
 
-    <div v-if="view?.status === 'active'" class="bar mt-2" role="progressbar" aria-label="Session progress" :aria-valuenow="Math.round(progress)" aria-valuemin="0" aria-valuemax="100">
+    <div v-if="view?.status === 'active'" class="bar mt-2" role="progressbar" :aria-label="t('review.progress')" :aria-valuenow="Math.round(progress)" aria-valuemin="0" aria-valuemax="100">
       <span :style="{ inlineSize: `${progress}%` }" />
     </div>
 
     <div v-if="review.status === 'loading' || review.status === 'idle'" class="mt-6 flex-1" aria-hidden="true">
       <div class="skeleton h-[clamp(22rem,58dvh,36rem)] w-full rounded-2xl" />
     </div>
-    <StateMessage v-else-if="review.status === 'error'" kind="error" title="Could not start the review" body="Your cards could not be read. Reload the page and try again." />
-    <StateMessage v-else-if="isEmpty" kind="empty" title="All done for today" body="No cards are due right now. Come back tomorrow, or study a few extra new words.">
-      <RouterLink class="btn btn-primary" :to="{ name: 'today' }">Back to Today</RouterLink>
-      <button type="button" class="btn" @click="moreDialog?.open()">Study more</button>
+    <StateMessage v-else-if="review.status === 'error'" kind="error" :title="t('review.startError')" :body="t('review.startErrorBody')" />
+    <StateMessage v-else-if="isEmpty" kind="empty" :title="t('review.emptyTitle')" :body="t('review.emptyBody')">
+      <RouterLink class="btn btn-primary" :to="{ name: 'today' }">{{ t('review.backToday') }}</RouterLink>
+      <button type="button" class="btn" @click="moreDialog?.open()">{{ t('review.more') }}</button>
     </StateMessage>
     <ReviewSummary v-else-if="view?.status === 'finished' && review.summary" :summary="review.summary" :streak="review.streak" :can-undo="view.canUndo" @undo="review.undo()" @more="moreDialog?.open()" />
 
@@ -120,12 +122,12 @@ function studyMore(): void {
           @flip="review.reveal()"
           @play="review.playCurrent()"
         />
-        <p class="mt-3 hidden text-center text-sm text-muted md:block">Space shows the answer, 1 to 4 rates it, U undoes, P plays.</p>
+        <p class="mt-3 hidden text-center text-sm text-muted md:block">{{ t('review.hints') }}</p>
       </div>
       <RatingButtons v-if="view.revealed" :preview="view.preview" @rate="review.answer($event)" />
-      <button v-else type="button" class="btn btn-primary min-h-16 w-full text-lg" @click="review.reveal()">Show answer</button>
+      <button v-else type="button" class="btn btn-primary min-h-16 w-full text-lg" @click="review.reveal()">{{ t('review.showAnswer') }}</button>
     </template>
 
-    <ConfirmDialog ref="moreDialog" title="Study more new words?" :body="`This adds ${EXTRA_NEW_CARDS} new words beyond your daily limit.`" confirm-label="Add them" @confirm="studyMore" />
+    <ConfirmDialog ref="moreDialog" :title="t('review.moreTitle')" :body="t('review.moreBody', { n: EXTRA_NEW_CARDS })" :confirm-label="t('review.moreConfirm')" @confirm="studyMore" />
   </section>
 </template>

@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { formatInterval } from '@/domain/scheduling/formatInterval';
 import { RATINGS, type Interval, type Rating } from '@/domain/scheduling/types';
 
 defineProps<{ preview: Record<Rating, Interval> | null }>();
 const emit = defineEmits<{ rate: [rating: Rating] }>();
+const { t } = useI18n();
 
-const labels: Record<Rating, string> = { again: 'Again', hard: 'Hard', good: 'Good', easy: 'Easy' };
 const accents: Record<Rating, string> = {
   again: 'border-t-unknown',
   hard: 'border-t-fav',
@@ -15,7 +16,7 @@ const accents: Record<Rating, string> = {
 </script>
 
 <template>
-  <div class="grid grid-cols-4 gap-2" role="group" aria-label="How well did you remember this word?">
+  <div class="grid grid-cols-4 gap-2" role="group" :aria-label="t('review.ratingGroup')">
     <button
       v-for="(rating, position) in RATINGS"
       :key="rating"
@@ -26,7 +27,7 @@ const accents: Record<Rating, string> = {
       :aria-keyshortcuts="String(position + 1)"
       @click="emit('rate', rating)"
     >
-      <span class="font-medium">{{ labels[rating] }}</span>
+      <span class="font-medium">{{ t(`review.${rating}`) }}</span>
       <span v-if="preview" class="text-xs text-muted tabular-nums">{{ formatInterval(preview[rating].days) }}</span>
     </button>
   </div>
