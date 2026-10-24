@@ -72,7 +72,7 @@ describe('parseBackup validation', () => {
 
   it('rejects files from other apps and from newer versions', async () => {
     const valid = JSON.parse(await serialize(source)) as Record<string, unknown>;
-    expect(() => parseBackup(JSON.stringify({ ...valid, format: 'other' }))).toThrow('not a Lexi Book');
+    expect(() => parseBackup(JSON.stringify({ ...valid, format: 'other' }))).toThrow('not a Easy Learn');
     expect(() => parseBackup(JSON.stringify({ ...valid, version: 99 }))).toThrow('different version');
   });
 

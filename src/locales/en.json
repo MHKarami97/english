@@ -435,7 +435,7 @@
   "backup": {
     "errors": {
       "invalidJson": "The file is not valid JSON.",
-      "notProgressFile": "This is not a Lexi Book progress file.",
+      "notProgressFile": "This is not a Easy Learn progress file.",
       "unsupportedVersion": "This file was made by a different version of the app and cannot be read.",
       "noData": "The file has no data section.",
       "missingList": "The file has no list of {list}.",

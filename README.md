@@ -1,4 +1,4 @@
-# Lexi Book
+# Easy Learn
 
 Offline-first PWA for learning English vocabulary from the *4000 Essential English Words* books, with a spaced-repetition review schedule, practice modes and optional offline audio and pictures. Production: https://english.mhkarami97.ir
 

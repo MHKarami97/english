@@ -435,7 +435,7 @@
   "backup": {
     "errors": {
       "invalidJson": "فایل JSON معتبر نیست.",
-      "notProgressFile": "این یک فایل پیشرفت Lexi Book نیست.",
+      "notProgressFile": "این یک فایل پیشرفت Easy Learn نیست.",
       "unsupportedVersion": "این فایل با نسخه دیگری از برنامه ساخته شده و قابل خواندن نیست.",
       "noData": "فایل بخش داده ندارد.",
       "missingList": "فایل فهرست {list} ندارد.",

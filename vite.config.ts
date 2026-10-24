@@ -44,6 +44,7 @@ export default defineConfig({
       '/data': {
         target: 'https://mhkarami97.github.io',
         changeOrigin: true,
+        secure: false,
         rewrite: (path) => {
           if (path === '/data/books.json') return path;
           return path.replace(/^\/data\//, '/english-word/data/old-books/');

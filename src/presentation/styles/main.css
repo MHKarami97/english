@@ -47,9 +47,8 @@
   --shadow-paper: 0 1px 0 rgb(31 27 22 / 0.04), 0 6px 12px -8px rgb(60 40 20 / 0.22);
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --font-ui: 'Vazirmatn', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
-  /* To use Vazirmatn for headwords, change this single line to: var(--font-ui) */
-  --font-headword: 'Lexi Serif', 'Iowan Old Style', Georgia, serif;
-  --font-ipa: 'Lexi Serif', 'Segoe UI', 'Noto Sans', 'DejaVu Sans', Arial, sans-serif;
+  --font-headword: var(--font-ui);
+  --font-ipa: var(--font-ui);
 }
 
 .dark {
