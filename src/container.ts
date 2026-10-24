@@ -60,6 +60,7 @@ import { AudioPlayer } from '@/infrastructure/audio/AudioPlayer';
 import { SystemClock } from '@/infrastructure/clock/SystemClock';
 import { BrowserMediaAvailability } from '@/infrastructure/media/BrowserMediaAvailability';
 import { MediaUrlResolver } from '@/infrastructure/media/MediaUrlResolver';
+import { InstallPromptSource } from '@/infrastructure/pwa/InstallPromptSource';
 import { MathRandomSource } from '@/infrastructure/random/MathRandomSource';
 import { StorageEstimator } from '@/infrastructure/storage/StorageEstimator';
 
@@ -116,6 +117,7 @@ export const container = {
   audio: new AudioPlayer(),
   storage,
   downloads,
+  install: new InstallPromptSource(),
   backupReminder: new BackupReminderService(settingsRepository, new DexieHistoryProbe(db)),
   bootstrap: new BootstrapService(
     bookRepository,

@@ -2,6 +2,7 @@
 import { computed, onMounted } from 'vue';
 import { RouterView, useRoute } from 'vue-router';
 import { WifiOff } from '@lucide/vue';
+import BackupReminderBanner from '@/presentation/components/BackupReminderBanner.vue';
 import NavBar from '@/presentation/components/NavBar.vue';
 import ImportScreen from '@/presentation/components/ImportScreen.vue';
 import TopBar from '@/presentation/components/TopBar.vue';
@@ -39,6 +40,7 @@ onMounted(() => {
         <WifiOff class="size-4 shrink-0" aria-hidden="true" />
         You are offline. Saved words still work; audio and pictures you have not opened before may be missing.
       </p>
+      <BackupReminderBanner v-if="books.phase === 'ready' && !immersive" />
       <main
         class="pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-8"
         :class="{ 'max-md:pb-[env(safe-area-inset-bottom)]': immersive }"
