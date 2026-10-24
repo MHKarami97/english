@@ -13,7 +13,8 @@
     "back": "Back",
     "later": "Later",
     "dismiss": "Dismiss",
-    "words": "{n} word | {n} words"
+    "words": "{n} word | {n} words",
+    "reloadHint": "Reload the page and try again."
   },
   "nav": {
     "main": "Main navigation",
@@ -32,8 +33,34 @@
     "offlineReady": "Ready to work offline.",
     "reload": "Reload"
   },
+  "home": {
+    "loadErrorTitle": "Could not read your library",
+    "loadErrorBody": "Your saved words could not be opened. Reload the page and try again.",
+    "continueTitle": "Continue browsing",
+    "lastCard": "Last card: {word}",
+    "resume": "Resume this card",
+    "totalWords": "Total words",
+    "knownWords": "Known words",
+    "units": "Units",
+    "allUnits": "All units"
+  },
+  "library": {
+    "title": "Library",
+    "sections": "Library sections",
+    "tabBooks": "Books",
+    "tabFavorites": "Favorites",
+    "emptyTitle": "No books yet",
+    "emptyBody": "Add a book to public/data/books.json and it will show up here.",
+    "summary": "{units}, {words}",
+    "known": "{n} known"
+  },
   "unit": {
-    "title": "Unit {n}"
+    "title": "Unit {n}",
+    "count": "{n} unit | {n} units",
+    "listTitle": "Units",
+    "listErrorTitle": "Could not read the units",
+    "emptyTitle": "No units in this book",
+    "emptyBody": "The book's data file has no flashcard units."
   },
   "settings": {
     "language": {
