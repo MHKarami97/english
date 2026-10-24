@@ -109,6 +109,7 @@ async function exportProgress(): Promise<void> {
   link.download = `lexi-book-progress-${container.clock.now().toISOString().slice(0, 10)}.json`;
   link.click();
   URL.revokeObjectURL(url);
+  await container.backupReminder.markExported();
   message.value = 'Progress exported.';
 }
 
