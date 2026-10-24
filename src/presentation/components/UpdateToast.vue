@@ -12,9 +12,6 @@ const pwa = usePwaStore();
     role="status"
     class="card fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 flex flex-wrap items-center gap-3 p-4 md:start-auto md:end-6 md:bottom-6 md:max-w-sm"
   >
-    <p class="min-w-0 flex-1">
-      {{ pwa.needRefresh ? t('update.ready') : t('update.offlineReady') }}
-    </p>
     <button v-if="pwa.needRefresh" type="button" class="btn btn-primary" @click="pwa.applyUpdate()">
       {{ t('update.reload') }}
     </button>

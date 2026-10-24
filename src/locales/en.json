@@ -31,7 +31,7 @@
   "update": {
     "ready": "A new version is ready.",
     "offlineReady": "Ready to work offline.",
-    "reload": "Reload"
+    "reload": "Update"
   },
   "home": {
     "loadErrorTitle": "Could not read your library",
