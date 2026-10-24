@@ -39,6 +39,18 @@ export default defineConfig({
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   build: { target: 'es2022' },
+  server: {
+    proxy: {
+      '/data': {
+        target: 'https://mhkarami97.github.io',
+        changeOrigin: true,
+        rewrite: (path) => {
+          if (path === '/data/books.json') return path;
+          return path.replace(/^\/data\//, '/english-word/data/old-books/');
+        },
+      },
+    },
+  },
   plugins: [
     vue(),
     tailwindcss(),
@@ -68,9 +80,12 @@ export default defineConfig({
         background_color: '#f6f1e7',
         theme_color: '#f6f1e7',
         icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icons/icon-48.png', sizes: '48x48', type: 'image/png' },
+          { src: 'icons/icon-72.png', sizes: '72x72', type: 'image/png' },
+          { src: 'icons/icon-96.png', sizes: '96x96', type: 'image/png' },
+          { src: 'icons/icon-144.png', sizes: '144x144', type: 'image/png' },
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
         ],
       },
       injectManifest: {
