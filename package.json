@@ -18,11 +18,13 @@
     "fonts": "node scripts/fetch-fonts.mjs"
   },
   "dependencies": {
+    "@intlify/unplugin-vue-i18n": "^11.2.7",
     "@lucide/vue": "^1.61.0",
     "dexie": "^4.4.7",
     "fuse.js": "^7.5.0",
     "pinia": "^4.1.0",
     "vue": "^3.5.44",
+    "vue-i18n": "^11.4.16",
     "vue-router": "^5.4.0"
   },
   "devDependencies": {
