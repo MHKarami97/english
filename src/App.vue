@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { RouterView, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { WifiOff } from '@lucide/vue';
 import BackupReminderBanner from '@/presentation/components/BackupReminderBanner.vue';
 import NavBar from '@/presentation/components/NavBar.vue';
@@ -13,6 +14,7 @@ import { usePwaStore } from '@/presentation/stores/pwa';
 import { useSettingsStore } from '@/presentation/stores/settings';
 
 const route = useRoute();
+const { t } = useI18n();
 const books = useBooksStore();
 const settings = useSettingsStore();
 const pwa = usePwaStore();
@@ -38,7 +40,7 @@ onMounted(() => {
         class="flex items-center gap-2 border-b border-line bg-surface px-4 py-2 text-sm text-muted"
       >
         <WifiOff class="size-4 shrink-0" aria-hidden="true" />
-        You are offline. Saved words still work; audio and pictures you have not opened before may be missing.
+        {{ t('offline.banner') }}
       </p>
       <BackupReminderBanner v-if="books.phase === 'ready' && !immersive" />
       <main

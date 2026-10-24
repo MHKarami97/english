@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { usePwaStore } from '@/presentation/stores/pwa';
 
+const { t } = useI18n();
 const pwa = usePwaStore();
 </script>
 
@@ -11,9 +13,13 @@ const pwa = usePwaStore();
     class="card fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 flex flex-wrap items-center gap-3 p-4 md:start-auto md:end-6 md:bottom-6 md:max-w-sm"
   >
     <p class="min-w-0 flex-1">
-      {{ pwa.needRefresh ? 'A new version is ready.' : 'Ready to work offline.' }}
+      {{ pwa.needRefresh ? t('update.ready') : t('update.offlineReady') }}
     </p>
-    <button v-if="pwa.needRefresh" type="button" class="btn btn-primary" @click="pwa.applyUpdate()">Reload</button>
-    <button type="button" class="btn" @click="pwa.dismiss()">{{ pwa.needRefresh ? 'Later' : 'Dismiss' }}</button>
+    <button v-if="pwa.needRefresh" type="button" class="btn btn-primary" @click="pwa.applyUpdate()">
+      {{ t('update.reload') }}
+    </button>
+    <button type="button" class="btn" @click="pwa.dismiss()">
+      {{ pwa.needRefresh ? t('common.later') : t('common.dismiss') }}
+    </button>
   </div>
 </template>

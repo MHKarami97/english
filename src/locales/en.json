@@ -11,15 +11,26 @@
     "retry": "Try again",
     "loading": "Loading…",
     "back": "Back",
+    "later": "Later",
+    "dismiss": "Dismiss",
     "words": "{n} word | {n} words"
   },
   "nav": {
+    "main": "Main navigation",
     "home": "Home",
     "library": "Library",
     "today": "Today",
     "practice": "Practice",
     "settings": "Settings",
-    "search": "Search"
+    "search": "Search words"
+  },
+  "offline": {
+    "banner": "You are offline. Saved words still work; audio and pictures you have not opened before may be missing."
+  },
+  "update": {
+    "ready": "A new version is ready.",
+    "offlineReady": "Ready to work offline.",
+    "reload": "Reload"
   },
   "unit": {
     "title": "Unit {n}"

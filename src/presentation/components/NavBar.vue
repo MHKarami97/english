@@ -2,21 +2,24 @@
 import { RouterLink } from 'vue-router';
 import { CalendarCheck, Dumbbell, House, Library, Settings } from '@lucide/vue';
 import { APP_NAME } from '@/config/app';
+import { useI18n } from 'vue-i18n';
 
 defineProps<{ hideOnPhone: boolean }>();
 
+const { t } = useI18n();
+
 const items = [
-  { to: '/', label: 'Home', icon: House },
-  { to: '/library', label: 'Library', icon: Library },
-  { to: '/today', label: 'Today', icon: CalendarCheck },
-  { to: '/practice', label: 'Practice', icon: Dumbbell },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/', key: 'nav.home', icon: House },
+  { to: '/library', key: 'nav.library', icon: Library },
+  { to: '/today', key: 'nav.today', icon: CalendarCheck },
+  { to: '/practice', key: 'nav.practice', icon: Dumbbell },
+  { to: '/settings', key: 'nav.settings', icon: Settings },
 ] as const;
 </script>
 
 <template>
   <nav
-    aria-label="Main"
+    :aria-label="t('nav.main')"
     class="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:sticky md:inset-auto md:top-0 md:flex md:h-dvh md:w-20 md:shrink-0 md:flex-col md:border-t-0 md:border-e md:pb-0 lg:w-60"
     :class="{ 'max-md:hidden': hideOnPhone }"
   >
@@ -25,7 +28,7 @@ const items = [
       <li v-for="item in items" :key="item.to">
         <RouterLink :to="item.to" class="nav-link">
           <component :is="item.icon" class="size-5 shrink-0" aria-hidden="true" />
-          <span>{{ item.label }}</span>
+          <span>{{ t(item.key) }}</span>
         </RouterLink>
       </li>
     </ul>
