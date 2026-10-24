@@ -1,4 +1,7 @@
+import { BackupReminderService } from '@/application/BackupReminderService';
 import { BootstrapService } from '@/application/BootstrapService';
+import { ContentMaintenanceService } from '@/application/ContentMaintenanceService';
+import { DownloadManager } from '@/application/DownloadManager';
 import { LibraryService } from '@/application/LibraryService';
 import { MatchingGame } from '@/application/MatchingGame';
 import { PlacementTestService } from '@/application/PlacementTestService';
@@ -20,6 +23,10 @@ import { ProgressBackupService } from '@/data/backup/ProgressBackupService';
 import { HttpBookIndex } from '@/data/content/HttpBookIndex';
 import { HttpContentPack } from '@/data/content/HttpContentPack';
 import { LexiDatabase } from '@/data/db/LexiDatabase';
+import { CacheStorageAdapter } from '@/data/download/CacheStorageAdapter';
+import { DexieDownloadRecordRepository } from '@/data/download/DexieDownloadRecordRepository';
+import { HttpMediaManifestRepository } from '@/data/download/HttpMediaManifestRepository';
+import { OrphanReconciler } from '@/data/download/OrphanReconciler';
 import { BookImporter } from '@/data/import/BookImporter';
 import { DexieQuizLedger } from '@/data/quiz/DexieQuizLedger';
 import { DexieDistractorPool } from '@/data/quiz/DexieDistractorPool';
@@ -37,12 +44,14 @@ import {
   DexieUnitRepository,
   DexieWordRepository,
 } from '@/data/repositories';
+import { DexieHistoryProbe } from '@/data/review/DexieHistoryProbe';
 import { DexieReviewLedger } from '@/data/review/DexieReviewLedger';
 import {
   DexieDailyStatsRepository,
   DexieReviewCardRepository,
   DexieReviewLogRepository,
 } from '@/data/review/ReviewRepositories';
+import { ExponentialBackoffRetryPolicy } from '@/domain/download/RetryPolicy';
 import { TieredDistractorSelector } from '@/domain/quiz/distractors';
 import { createDefaultQuestionFactory } from '@/domain/quiz/strategies';
 import { createSeededRandom, type RandomSource } from '@/domain/random';
@@ -72,6 +81,19 @@ const studySettings = new StudySettingsService(settingsRepository);
 const queueBuilder = new QueueBuilder(reviewCards, unitRepository, wordRepository, progressRepository, new MathRandomSource());
 const streak = new StreakService(dailyStats, studyDay);
 const media = new MediaUrlResolver();
+const storage = new StorageEstimator();
+
+// Offline downloads (Phase 4). Media bytes live in Cache Storage; Dexie only keeps small records.
+const manifests = new HttpMediaManifestRepository(bookRepository);
+const downloads = new DownloadManager({
+  manifests,
+  cache: new CacheStorageAdapter(),
+  locator: media,
+  records: new DexieDownloadRecordRepository(db),
+  retry: new ExponentialBackoffRetryPolicy(new MathRandomSource()),
+  storage,
+});
+const maintenance = new ContentMaintenanceService(new OrphanReconciler(db), manifests, downloads);
 
 // Practice (Phase 3). Nothing below imports the review ledger or the scheduler: quiz results
 // can never change an SM-2 schedule.
@@ -92,12 +114,17 @@ export const container = {
   settings: settingsRepository,
   media,
   audio: new AudioPlayer(),
-  storage: new StorageEstimator(),
+  storage,
+  downloads,
+  backupReminder: new BackupReminderService(settingsRepository, new DexieHistoryProbe(db)),
   bootstrap: new BootstrapService(
     bookRepository,
     new BookImporter(db),
     new HttpBookIndex(),
     (book) => new HttpContentPack(book),
+    async (bookId) => {
+      await maintenance.afterContentRefresh(bookId);
+    },
   ),
   library: new LibraryService(unitRepository, wordRepository, progressRepository),
   progress: new ProgressService(progressRepository, settingsRepository),

@@ -18,6 +18,8 @@ export class BootstrapService {
     private readonly importer: BookImporterPort,
     private readonly index: BookIndexSource,
     private readonly createPack: (book: BookRef) => ContentPack,
+    /** Runs after a background refresh brought new content, before the UI is told about it. */
+    private readonly afterRefresh?: (bookId: string) => Promise<void>,
   ) {}
 
   /** Offline launches fall back to the books already stored in IndexedDB. */
@@ -37,8 +39,10 @@ export class BootstrapService {
       // Content is usable immediately; revalidate quietly and only notify if it actually changed.
       void this.importer
         .import(pack)
-        .then((outcome) => {
-          if (outcome === 'imported') options.onRefreshed?.();
+        .then(async (outcome) => {
+          if (outcome !== 'imported') return;
+          await this.afterRefresh?.(book.id).catch(() => undefined);
+          options.onRefreshed?.();
         })
         .catch(() => undefined);
       return;
