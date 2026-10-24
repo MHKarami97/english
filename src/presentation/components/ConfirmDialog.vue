@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 defineProps<{ title: string; body: string; confirmLabel: string }>();
 const emit = defineEmits<{ confirm: [] }>();
+const { t } = useI18n();
 
 let counter = 0;
 const titleId = `confirm-dialog-${(counter += 1)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -23,7 +25,7 @@ defineExpose({ open: () => dialog.value?.showModal(), close: () => dialog.value?
       <p class="mt-2 text-muted">{{ body }}</p>
       <slot />
       <div class="mt-6 flex justify-end gap-3">
-        <button type="button" class="btn" @click="dialog?.close()">Cancel</button>
+        <button type="button" class="btn" @click="dialog?.close()">{{ t('common.cancel') }}</button>
         <button type="button" class="btn btn-primary" @click="confirm">{{ confirmLabel }}</button>
       </div>
     </div>

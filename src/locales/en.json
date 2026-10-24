@@ -1,5 +1,7 @@
 {
-  "meta": { "title": "{name} - 4000 Essential English Words" },
+  "meta": {
+    "title": "{name} - 4000 Essential English Words"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -175,9 +177,18 @@
         "title": "Meaning match",
         "description": "Pick the word for a meaning, or the meaning for a word."
       },
-      "pictures": { "title": "Picture quiz", "description": "Match words with their pictures." },
-      "cloze": { "title": "Fill the blank", "description": "Complete the example sentence." },
-      "dictation": { "title": "Dictation", "description": "Listen to a word and type it." },
+      "pictures": {
+        "title": "Picture quiz",
+        "description": "Match words with their pictures."
+      },
+      "cloze": {
+        "title": "Fill the blank",
+        "description": "Complete the example sentence."
+      },
+      "dictation": {
+        "title": "Dictation",
+        "description": "Listen to a word and type it."
+      },
       "timed": {
         "title": "Timed challenge",
         "description": "Answer as many as you can before the clock runs out."
@@ -268,9 +279,86 @@
     "language": {
       "title": "Language",
       "hint": "The interface language. Book text always stays English."
+    },
+    "version": "Version {v}",
+    "theme": {
+      "title": "Theme",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "autoplay": {
+      "title": "Play audio when a card flips",
+      "hint": "The word is read aloud as the answer side appears."
+    },
+    "study": {
+      "title": "Study",
+      "newPerDay": "New words per day ({min}-{max})",
+      "reviewsPerDay": "Reviews per day ({min}-{max})",
+      "dayStart": "New day starts at ({min}-{max} h)",
+      "order": "Order of new words",
+      "orderBook": "Book order",
+      "orderRandom": "Random",
+      "showIntervals": "Show the next interval on the rating buttons",
+      "skipKnown": "Do not introduce words I marked as known",
+      "activeUnits": "Units to learn from",
+      "noUnitSelected": "No unit is selected, so no new words will be introduced.",
+      "resetOneLabel": "Reset schedule for one unit",
+      "resetUnit": "Reset unit",
+      "resetAll": "Reset all review progress"
+    },
+    "storage": {
+      "title": "Storage on this device",
+      "usage": "{used} used of about {quota} available.",
+      "noReport": "Your browser does not report storage usage.",
+      "persistent": "Persistent storage: {state}. It asks the browser not to clear your progress when space runs low.",
+      "request": "Request persistent storage",
+      "granted": "granted",
+      "notGranted": "not granted yet",
+      "unsupported": "not supported by this browser",
+      "mb": "{n} MB",
+      "gb": "{n} GB"
+    },
+    "backup": {
+      "title": "Back up your progress",
+      "hint": "Saves your review schedule, history, marks and settings. The word lists are not included.",
+      "export": "Export progress (JSON)",
+      "import": "Import progress (JSON)"
+    },
+    "marks": {
+      "title": "Reset word marks",
+      "hint": "Clears known and unknown marks, favorites and your last browsing position."
+    },
+    "messages": {
+      "marksCleared": "Your known, unknown and favorite marks were cleared.",
+      "unitReset": "The schedule for {unit} was reset ({n} cards).",
+      "allReset": "All review progress was cleared. Your word lists and marks are untouched.",
+      "exported": "Progress exported.",
+      "fileUnreadable": "The file could not be read.",
+      "imported": "Imported {cards} cards, {logs} review records and {marks} word marks."
+    },
+    "dialogs": {
+      "marksTitle": "Reset word marks?",
+      "marksBody": "This cannot be undone. Your review schedule and word lists stay on the device.",
+      "marksConfirm": "Reset marks",
+      "unitTitle": "Reset this unit's schedule?",
+      "unitBody": "Every card from {unit} becomes new again. Your history is kept.",
+      "allTitle": "Reset all review progress?",
+      "allBody": "All schedules, history and daily statistics are deleted. Word marks and word lists stay. This cannot be undone.",
+      "allConfirm": "Reset everything",
+      "importTitle": "Import this progress file?",
+      "importBody": "The file holds {cards} cards and {logs} review records.",
+      "importConfirm": "Import",
+      "importHow": "How to import",
+      "merge": "Merge",
+      "mergeHint": "Keep what is newer, on this device or in the file.",
+      "replace": "Replace",
+      "replaceHint": "Delete the current progress and use only the file."
     }
   },
-  "a11y": { "skipToContent": "Skip to content" },
+  "a11y": {
+    "skipToContent": "Skip to content"
+  },
   "placement": {
     "title": "Placement test",
     "answered": "{n} answered",
@@ -315,5 +403,31 @@
     "emptyBody": "Words you get wrong in practice will wait here until you answer them correctly twice in a row.",
     "missed": "Missed {n}x",
     "progress": "{n} of 2 right"
+  },
+  "placementPrompt": {
+    "title": "Not sure where to start?",
+    "body": "A short placement test estimates which unit fits you. It is a rough guess, and nothing changes until you confirm.",
+    "take": "Take the placement test",
+    "notNow": "Not now"
+  },
+  "notFound": {
+    "title": "This page does not exist",
+    "body": "The link may be old or mistyped.",
+    "home": "Go to Home"
+  },
+  "search": {
+    "title": "Search",
+    "label": "Search words, definitions and examples",
+    "placeholder": "Search words, definitions, examples",
+    "unit": "Unit",
+    "pos": "Part of speech",
+    "any": "Any",
+    "errorTitle": "Search is not ready",
+    "errorBody": "The word index could not be built. Reload the page and try again.",
+    "typeTitle": "Type to search",
+    "typeBody": "Search works offline across words, definitions and example sentences.",
+    "noneTitle": "Nothing matches",
+    "noneBody": "Try a shorter spelling, or clear a filter.",
+    "results": "{n} result | {n} results"
   }
 }

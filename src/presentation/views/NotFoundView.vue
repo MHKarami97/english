@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import StateMessage from '@/presentation/components/StateMessage.vue';
+
+const { t } = useI18n();
 </script>
 
 <template>
-  <StateMessage kind="empty" title="This page does not exist" body="The link may be old or mistyped.">
-    <RouterLink to="/" class="btn btn-primary">Go to Home</RouterLink>
+  <StateMessage kind="empty" :title="t('notFound.title')" :body="t('notFound.body')">
+    <RouterLink to="/" class="btn btn-primary">{{ t('notFound.home') }}</RouterLink>
   </StateMessage>
 </template>
