@@ -20,8 +20,8 @@ async function toggleFavorite(word: Word): Promise<void> { const state = await c
     <h2 id="results-title" class="text-center font-display text-title font-semibold">{{ t('quiz.results.title') }}</h2>
     <p class="mt-1 text-center text-muted">{{ t('quiz.results.summary', { correct: summary.correct, total: summary.total, percent: Math.round(summary.accuracy * 100), time }) }}</p>
     <p v-if="summary.bestStreak >= 2" class="mt-1 text-center text-sm">{{ t('quiz.results.bestStreak', { n: summary.bestStreak }) }}</p>
-    <p v-if="summary.skippedAudio > 0" class="mt-3 text-center text-sm text-muted" role="note">{{ t('quiz.results.skippedAudio', summary.skippedAudio, { n: summary.skippedAudio }) }}</p>
-    <p v-if="summary.skippedImages > 0" class="mt-1 text-center text-sm text-muted" role="note">{{ t('quiz.results.skippedImages', summary.skippedImages, { n: summary.skippedImages }) }}</p>
+    <p v-if="summary.skippedAudio > 0" class="mt-3 text-center text-sm text-muted" role="note">{{ t('quiz.results.skippedAudio', { n: summary.skippedAudio }, summary.skippedAudio) }}</p>
+    <p v-if="summary.skippedImages > 0" class="mt-1 text-center text-sm text-muted" role="note">{{ t('quiz.results.skippedImages', { n: summary.skippedImages }, summary.skippedImages) }}</p>
     <section v-if="summary.missed.length" class="mt-6" aria-labelledby="missed-title">
       <h3 id="missed-title" class="mb-2 font-medium">{{ t('quiz.results.missedTitle') }}</h3>
       <ul class="card divide-y divide-line">

@@ -25,7 +25,7 @@ const status = ref<'loading' | 'ready' | 'missing' | 'error'>('loading');
 const wordList = useWordList();
 
 const count = computed(() => words.value.length);
-const { listEl, range, offsetY, totalHeight } = useWindowVirtualList(count, ROW_HEIGHT);
+const { range, offsetY, totalHeight } = useWindowVirtualList(count, ROW_HEIGHT);
 const visible = computed(() => words.value.slice(range.value.start, range.value.end));
 const displayTitle = computed(() => (title.value ? unitTitle(title.value) : t('unit.fallbackTitle')));
 const wordsLabel = computed(() => t('unit.wordsIn', { title: displayTitle.value }));

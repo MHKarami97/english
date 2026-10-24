@@ -75,7 +75,7 @@ onBeforeUnmount(() => clearTimeout(timer));
       <StateMessage v-else-if="!hasInput" kind="empty" :title="t('search.typeTitle')" :body="t('search.typeBody')" />
       <StateMessage v-else-if="results.length === 0" kind="empty" :title="t('search.noneTitle')" :body="t('search.noneBody')" />
       <template v-else>
-        <p class="mb-2 text-sm text-muted" aria-live="polite">{{ t('search.results', results.length, { n: results.length }) }}</p>
+        <p class="mb-2 text-sm text-muted" aria-live="polite">{{ t('search.results', { n: results.length }, results.length) }}</p>
         <ul class="card divide-y divide-line">
           <li v-for="word in results" :key="word.id">
             <RouterLink class="block min-h-14 px-4 py-3" :to="{ name: 'study-unit', params: { unitId: word.unitId }, query: { word: word.id } }">

@@ -12,7 +12,9 @@ import { useCatalogStore } from '@/presentation/stores/catalog';
 import { useSettingsStore, type ThemeChoice } from '@/presentation/stores/settings';
 import { useStudySettingsStore } from '@/presentation/stores/studySettings';
 import { useTodayStore } from '@/presentation/stores/today';
-import { setLocale, type Locale } from '@/presentation/i18n';
+import type { Locale } from '@/presentation/i18n';
+
+declare const __APP_VERSION__: string;
 
 type NumericSetting = 'newPerDay' | 'maxReviewsPerDay' | 'dayRolloverHour';
 

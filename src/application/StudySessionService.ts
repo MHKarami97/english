@@ -308,7 +308,7 @@ export class StudySessionService {
     const now = this.deps.clock.now().getTime();
     this.current = {
       word,
-      card: this.cards.get(word.id) ?? createNewCard(word, now),
+      card: this.cards.get(word.id) ?? createNewCard({ ...word, wordId: word.id }, now),
       kind: entry.kind,
       drill: entry.drill === true,
     };

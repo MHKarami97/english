@@ -78,7 +78,7 @@ defineExpose({ focus: () => stage.value?.focus() });
   >
     <div ref="drag" class="drag">
       <div class="flip" :data-flipped="flipped">
-        <div class="face face-front items-center justify-center text-center" v-bind="flipped ? { inert: '' } : {}">
+        <div class="face face-front items-center justify-center text-center" :inert="flipped">
           <MediaImage class="w-full max-w-xs rounded-lg" :src="container.media.wordImage(word)" :width="4" :height="3" eager />
           <p class="headword" lang="en" dir="ltr">{{ word.word }}</p>
           <button type="button" class="btn" :disabled="!hasAudio" @click.stop="emit('play')">
@@ -89,7 +89,7 @@ defineExpose({ focus: () => stage.value?.focus() });
           </button>
           <p v-if="audioFailed" class="text-sm text-muted" role="status">{{ t('word.audioOffline') }}</p>
         </div>
-        <div class="face face-back" v-bind="flipped ? {} : { inert: '' }">
+        <div class="face face-back" :inert="!flipped">
           <div class="flex flex-wrap items-baseline gap-x-3 text-start" lang="en" dir="ltr">
             <p class="headword !text-4xl">{{ word.word }}</p>
             <p v-if="word.pos" class="text-muted italic">{{ word.pos }}</p>
