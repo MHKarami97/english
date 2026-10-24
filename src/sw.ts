@@ -105,7 +105,11 @@ registerRoute(
 
 // 5. App Shell Navigation
 registerRoute(
-  new NavigationRoute(createHandlerBoundToURL('/index.html'), {
-    denylist: [/^\/data\//, /\/[^/?]+\.[a-z0-9]+$/i],
-  }),
+new NavigationRoute(createHandlerBoundToURL('/index.html'), {
+  denylist: [
+    /^\/data\//,
+    /^\/\.well-known\//,
+    /\/[^/?]+\.[a-z0-9]+$/i,
+  ],
+}),
 );
