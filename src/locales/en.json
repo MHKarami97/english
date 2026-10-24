@@ -1,107 +1,212 @@
 {
   "meta": { "title": "{name} - 4000 Essential English Words" },
   "common": {
-    "save": "Save", "cancel": "Cancel", "close": "Close", "delete": "Delete", "undo": "Undo", "retry": "Try again",
-    "loading": "Loading…", "back": "Back", "later": "Later", "dismiss": "Dismiss",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "undo": "Undo",
+    "retry": "Try again",
+    "loading": "Loading…",
+    "back": "Back",
+    "later": "Later",
+    "dismiss": "Dismiss",
     "words": "{n} word | {n} words",
     "reloadHint": "Reload the page and try again."
   },
   "nav": {
-    "main": "Main navigation", "home": "Home", "library": "Library", "today": "Today", "practice": "Practice",
-    "settings": "Settings", "search": "Search words"
+    "main": "Main navigation",
+    "home": "Home",
+    "library": "Library",
+    "today": "Today",
+    "practice": "Practice",
+    "settings": "Settings",
+    "search": "Search words"
   },
   "offline": {
     "banner": "You are offline. Saved words still work; audio and pictures you have not opened before may be missing."
   },
-  "update": { "ready": "A new version is ready.", "offlineReady": "Ready to work offline.", "reload": "Reload" },
+  "update": {
+    "ready": "A new version is ready.",
+    "offlineReady": "Ready to work offline.",
+    "reload": "Reload"
+  },
   "home": {
     "loadErrorTitle": "Could not read your library",
     "loadErrorBody": "Your saved words could not be opened. Reload the page and try again.",
-    "continueTitle": "Continue browsing", "lastCard": "Last card: {word}", "resume": "Resume this card",
-    "totalWords": "Total words", "knownWords": "Known words", "units": "Units", "allUnits": "All units"
+    "continueTitle": "Continue browsing",
+    "lastCard": "Last card: {word}",
+    "resume": "Resume this card",
+    "totalWords": "Total words",
+    "knownWords": "Known words",
+    "units": "Units",
+    "allUnits": "All units"
   },
   "library": {
-    "title": "Library", "sections": "Library sections", "tabBooks": "Books", "tabFavorites": "Favorites",
+    "title": "Library",
+    "sections": "Library sections",
+    "tabBooks": "Books",
+    "tabFavorites": "Favorites",
     "emptyTitle": "No books yet",
     "emptyBody": "Add a book to public/data/books.json and it will show up here.",
-    "summary": "{units}, {words}", "known": "{n} known"
+    "summary": "{units}, {words}",
+    "known": "{n} known"
   },
   "unit": {
-    "title": "Unit {n}", "count": "{n} unit | {n} units", "listTitle": "Units", "listErrorTitle": "Could not read the units",
-    "emptyTitle": "No units in this book", "emptyBody": "The book's data file has no flashcard units.",
-    "notFound": "Unit not found", "notFoundBody": "This unit is not in your saved word lists.",
-    "readError": "Could not read this unit", "wordsIn": "Words in {title}", "study": "Study this unit", "fallbackTitle": "Unit"
+    "title": "Unit {n}",
+    "count": "{n} unit | {n} units",
+    "listTitle": "Units",
+    "listErrorTitle": "Could not read the units",
+    "emptyTitle": "No units in this book",
+    "emptyBody": "The book's data file has no flashcard units.",
+    "notFound": "Unit not found",
+    "notFoundBody": "This unit is not in your saved word lists.",
+    "readError": "Could not read this unit",
+    "wordsIn": "Words in {title}",
+    "study": "Study this unit",
+    "fallbackTitle": "Unit"
   },
   "card": {
-    "today": "Today", "planned": "{n} card to study | {n} cards to study", "new": "New", "due": "Due", "about": "About",
-    "underMinute": "under 1 min", "minutes": "{n} min", "startReview": "Start review",
-    "allDone": "All done for today", "nothingYet": "Nothing to study yet",
+    "today": "Today",
+    "planned": "{n} card to study | {n} cards to study",
+    "new": "New",
+    "due": "Due",
+    "about": "About",
+    "underMinute": "under 1 min",
+    "minutes": "{n} min",
+    "startReview": "Start review",
+    "allDone": "All done for today",
+    "nothingYet": "Nothing to study yet",
     "allDoneBody": "Your next cards will show up when they are due.",
     "nothingYetBody": "Pick a unit in the Library, or raise the number of new words per day in Settings.",
-    "streak": "{n}-day streak", "best": "best {n}"
+    "streak": "{n}-day streak",
+    "best": "best {n}"
   },
   "word": {
-    "audioOffline": "Audio is not available offline", "play": "Play {word}",
-    "addFavorite": "Add {word} to favorites", "removeFavorite": "Remove {word} from favorites",
+    "audioOffline": "Audio is not available offline",
+    "play": "Play {word}",
+    "addFavorite": "Add {word} to favorites",
+    "removeFavorite": "Remove {word} from favorites",
     "known": "Marked as known. Mark as unknown",
     "unknown": "Marked as unknown. Mark as known",
     "new": "Not studied yet. Mark as known"
   },
   "favorites": {
-    "readError": "Could not read your favorites", "emptyTitle": "No favorites yet",
-    "emptyBody": "Tap the star on any word to keep it close.", "study": "Study favorites"
+    "readError": "Could not read your favorites",
+    "emptyTitle": "No favorites yet",
+    "emptyBody": "Tap the star on any word to keep it close.",
+    "study": "Study favorites"
   },
   "review": {
-    "title": "Review", "back": "Back to Today", "left": "{n} left",
-    "resumed": "(picked up where you left off)", "undo": "Undo last answer (U)", "progress": "Session progress",
+    "title": "Review",
+    "back": "Back to Today",
+    "left": "{n} left",
+    "resumed": "(picked up where you left off)",
+    "undo": "Undo last answer (U)",
+    "progress": "Session progress",
     "startError": "Could not start the review",
     "startErrorBody": "Your cards could not be read. Reload the page and try again.",
     "emptyTitle": "All done for today",
     "emptyBody": "No cards are due right now. Come back tomorrow, or study a few extra new words.",
-    "backToday": "Back to Today", "more": "Study more", "moreTitle": "Study more new words?",
-    "moreBody": "This adds {n} new words beyond your daily limit.", "moreConfirm": "Add them",
+    "backToday": "Back to Today",
+    "more": "Study more",
+    "moreTitle": "Study more new words?",
+    "moreBody": "This adds {n} new words beyond your daily limit.",
+    "moreConfirm": "Add them",
     "hints": "Space shows the answer, 1 to 4 rates it, U undoes, P plays.",
-    "showAnswer": "Show answer", "complete": "Session complete",
+    "showAnswer": "Show answer",
+    "complete": "Session complete",
     "answered": "{n} card in {time}, {percent}% remembered. | {n} cards in {time}, {percent}% remembered.",
     "ratingGroup": "How well did you remember this word?",
-    "again": "Again", "hard": "Hard", "good": "Good", "easy": "Easy",
-    "nextCards": "Next cards:", "noNext": "No other cards are scheduled yet.",
-    "undoLast": "Undo last answer", "durationSec": "{n} sec", "durationMin": "{n} min"
+    "again": "Again",
+    "hard": "Hard",
+    "good": "Good",
+    "easy": "Easy",
+    "nextCards": "Next cards:",
+    "noNext": "No other cards are scheduled yet.",
+    "undoLast": "Undo last answer",
+    "durationSec": "{n} sec",
+    "durationMin": "{n} min"
   },
   "study": {
-    "back": "Back", "cardOf": "Card {current} of {total}", "progressSet": "Progress through this set",
+    "back": "Back",
+    "cardOf": "Card {current} of {total}",
+    "progressSet": "Progress through this set",
     "favoritesEmpty": "No favorites yet",
     "favoritesEmptyBody": "Tap the star on a word and it will wait for you here.",
-    "unitEmpty": "Nothing to study here", "unitEmptyBody": "This unit has no words.",
-    "openError": "Could not open the cards", "openErrorBody": "Reload the page and try again.",
-    "endTitle": "End of the set", "endBody": "You know {known} of {total} cards in this set.",
-    "restart": "Start again", "backList": "Back to the list",
+    "unitEmpty": "Nothing to study here",
+    "unitEmptyBody": "This unit has no words.",
+    "openError": "Could not open the cards",
+    "openErrorBody": "Reload the page and try again.",
+    "endTitle": "End of the set",
+    "endBody": "You know {known} of {total} cards in this set.",
+    "restart": "Start again",
+    "backList": "Back to the list",
     "hints": "Space flips, arrows move, P plays, F favorites.",
-    "previous": "Previous card", "next": "Next card", "unknown": "Unknown", "flip": "Flip", "known": "Known",
-    "addFavorite": "Add to favorites (F)", "removeFavorite": "Remove from favorites (F)"
+    "previous": "Previous card",
+    "next": "Next card",
+    "unknown": "Unknown",
+    "flip": "Flip",
+    "known": "Known",
+    "addFavorite": "Add to favorites (F)",
+    "removeFavorite": "Remove from favorites (F)"
   },
   "practice": {
-    "title": "Practice", "resume": "Pick up where you left off", "resumeCount": "{n} answered so far",
-    "mode": "Mode", "words": "Words", "pairWith": "Pair words with", "meanings": "Meanings", "pictures": "Pictures",
-    "countLabel": "Number of questions ({min}-{max})", "mistakes": "Mistakes", "placement": "Placement test",
-    "start": "Start", "pickUnit": "Choose at least one unit to start.", "mistakesTitle": "Mistakes practice",
+    "title": "Practice",
+    "resume": "Pick up where you left off",
+    "resumeCount": "{n} answered so far",
+    "mode": "Mode",
+    "words": "Words",
+    "pairWith": "Pair words with",
+    "meanings": "Meanings",
+    "pictures": "Pictures",
+    "countLabel": "Number of questions ({min}-{max})",
+    "mistakes": "Mistakes",
+    "placement": "Placement test",
+    "start": "Start",
+    "pickUnit": "Choose at least one unit to start.",
+    "mistakesTitle": "Mistakes practice",
     "modes": {
-      "mixed": { "title": "Mixed practice", "description": "Meanings, pictures, sentences and spelling in one set." },
-      "mcq": { "title": "Meaning match", "description": "Pick the word for a meaning, or the meaning for a word." },
+      "mixed": {
+        "title": "Mixed practice",
+        "description": "Meanings, pictures, sentences and spelling in one set."
+      },
+      "mcq": {
+        "title": "Meaning match",
+        "description": "Pick the word for a meaning, or the meaning for a word."
+      },
       "pictures": { "title": "Picture quiz", "description": "Match words with their pictures." },
       "cloze": { "title": "Fill the blank", "description": "Complete the example sentence." },
       "dictation": { "title": "Dictation", "description": "Listen to a word and type it." },
-      "timed": { "title": "Timed challenge", "description": "Answer as many as you can before the clock runs out." },
-      "matching": { "title": "Matching game", "description": "Pair six words with meanings or pictures per round." }
+      "timed": {
+        "title": "Timed challenge",
+        "description": "Answer as many as you can before the clock runs out."
+      },
+      "matching": {
+        "title": "Matching game",
+        "description": "Pair six words with meanings or pictures per round."
+      }
     },
-    "scope": { "book": "Whole book", "units": "Units", "favorites": "Favorites", "unknown": "Marked unknown", "due": "Due today" }
+    "scope": {
+      "book": "Whole book",
+      "units": "Units",
+      "favorites": "Favorites",
+      "unknown": "Marked unknown",
+      "due": "Due today"
+    }
   },
   "quiz": {
-    "backToPractice": "Back to Practice", "timeLeft": "Time left {time}, {correct} correct",
-    "questionOf": "Question {current} of {total}", "inARow": "{n} in a row", "progress": "Progress",
-    "startError": "Could not start practice", "startErrorBody": "Your words could not be read. Reload the page and try again.",
-    "emptyTitle": "Nothing to practice here", "emptyBody": "This selection has no words yet. Try another set of words.",
-    "skip": "I do not know", "hints": "1 to 4 select, Enter confirms or continues, P plays audio.",
+    "backToPractice": "Back to Practice",
+    "timeLeft": "Time left {time}, {correct} correct",
+    "questionOf": "Question {current} of {total}",
+    "inARow": "{n} in a row",
+    "progress": "Progress",
+    "startError": "Could not start practice",
+    "startErrorBody": "Your words could not be read. Reload the page and try again.",
+    "emptyTitle": "Nothing to practice here",
+    "emptyBody": "This selection has no words yet. Try another set of words.",
+    "skip": "I do not know",
+    "hints": "1 to 4 select, Enter confirms or continues, P plays audio.",
     "instructions": {
       "mcq-definition-to-word": "Which word matches this meaning?",
       "mcq-word-to-definition": "What does this word mean?",
@@ -142,16 +247,73 @@
     }
   },
   "matching": {
-    "title": "Matching game", "status": "Round {round}, {attempts} tries, {time}", "finish": "Finish",
-    "startError": "Could not start the game", "startErrorBody": "Your words could not be read. Reload the page and try again.",
+    "title": "Matching game",
+    "status": "Round {round}, {attempts} tries, {time}",
+    "finish": "Finish",
+    "startError": "Could not start the game",
+    "startErrorBody": "Your words could not be read. Reload the page and try again.",
     "emptyTitle": "Not enough words",
     "emptyBody": "Matching needs at least two words with a meaning or picture. Try another set of words.",
     "gameOver": "Game over",
     "summary": "{pairs} pairs matched in {attempts} tries over {rounds} round. | {pairs} pairs matched in {attempts} tries over {rounds} rounds.",
-    "seeMistakes": "See mistakes", "instruction": "Pick a word, then pick what matches it.",
-    "wordsList": "Words", "matchesList": "Matches", "matched": "Matched",
-    "roundDone": "Round {round} complete in {tries} tries.", "nextRound": "Next round"
+    "seeMistakes": "See mistakes",
+    "instruction": "Pick a word, then pick what matches it.",
+    "wordsList": "Words",
+    "matchesList": "Matches",
+    "matched": "Matched",
+    "roundDone": "Round {round} complete in {tries} tries.",
+    "nextRound": "Next round"
   },
-  "settings": { "language": { "title": "Language", "hint": "The interface language. Book text always stays English." } },
-  "a11y": { "skipToContent": "Skip to content" }
+  "settings": {
+    "language": {
+      "title": "Language",
+      "hint": "The interface language. Book text always stays English."
+    }
+  },
+  "a11y": { "skipToContent": "Skip to content" },
+  "placement": {
+    "title": "Placement test",
+    "answered": "{n} answered",
+    "errorTitle": "Could not run the test",
+    "errorBody": "Your words could not be read. Reload the page and try again.",
+    "emptyTitle": "Not enough words",
+    "emptyBody": "The test needs units with meanings to ask about.",
+    "intro": {
+      "title": "Find a good place to start",
+      "body": "You will answer a few multiple-choice questions from each unit, in book order. The test stops when two units in a row go badly.",
+      "disclaimer": "This is a rough estimate, not a measure of your level. A few questions per unit means a lucky guess or a slip can move the result, and nothing changes in the app until you confirm.",
+      "start": "Start the test"
+    },
+    "result": {
+      "title": "Your estimate",
+      "startAt": "A good place to start is",
+      "noStart": "There was not enough to estimate a starting unit.",
+      "confidence": "Confidence is {confidence}, from {n} answers. Treat this as a rough guide.",
+      "accuracyPerUnit": "Accuracy per unit",
+      "startFrom": "Start from {unit}",
+      "activeUnits": "Only the {n} units from there onward will be used for new words.",
+      "markEarlier": "Also mark earlier words as known ({n})",
+      "applied": "Done. {units} units are active and {words} words were marked as known.",
+      "dialog": {
+        "title": "Mark earlier words as known?",
+        "body": "{n} words in earlier units will be marked as known and skipped when new words are chosen. You can undo this right after.",
+        "confirm": "Mark as known"
+      }
+    },
+    "confidence": {
+      "low": "low",
+      "medium": "medium",
+      "high": "fairly good"
+    }
+  },
+  "mistakes": {
+    "title": "Mistakes",
+    "practice": "Practice mistakes",
+    "errorTitle": "Could not read your mistakes",
+    "errorBody": "Reload the page and try again.",
+    "emptyTitle": "No mistakes. Nice work.",
+    "emptyBody": "Words you get wrong in practice will wait here until you answer them correctly twice in a row.",
+    "missed": "Missed {n}x",
+    "progress": "{n} of 2 right"
+  }
 }
