@@ -310,6 +310,44 @@
   .face-back {
     transform: rotateY(180deg);
   }
+
+  .stage {
+    touch-action: pan-y;
+    overflow: hidden;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  .drag {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    will-change: transform;
+  }
+
+  .flip {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    block-size: clamp(20rem, 54dvh, 34rem);
+  }
+
+  .face {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow-x: hidden;
+    overflow-wrap: anywhere;
+  }
+
+  .headword {
+    max-inline-size: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .overflow-wrap-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    min-inline-size: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

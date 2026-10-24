@@ -7,15 +7,10 @@ import type { Word } from '@/domain/entities';
 import ExampleSentence from './ExampleSentence.vue';
 import MediaImage from './MediaImage.vue';
 
-const SWIPE_DISTANCE = 80;
-const SWIPE_HINT_DISTANCE = 40;
+const SWIPE_DISTANCE = 72;
+const SWIPE_HINT_DISTANCE = 36;
 
-const props = defineProps<{
-  word: Word;
-  flipped: boolean;
-  swipeable: boolean;
-  audioFailed: boolean;
-}>();
+const props = defineProps<{ word: Word; flipped: boolean; swipeable: boolean; audioFailed: boolean }>();
 const emit = defineEmits<{ flip: []; play: []; swipe: [direction: 'known' | 'unknown'] }>();
 const { t } = useI18n();
 
@@ -23,6 +18,7 @@ const stage = ref<HTMLElement | null>(null);
 const drag = ref<HTMLElement | null>(null);
 const hasAudio = computed(() => container.media.audio(props.word) !== null);
 
+let pointerId: number | null = null;
 let startX = 0;
 let startY = 0;
 let deltaX = 0;
@@ -30,27 +26,31 @@ let tracking = false;
 let suppressClick = false;
 
 function onPointerDown(event: PointerEvent): void {
-  if (!props.swipeable || event.pointerType === 'mouse') return;
+  if (!props.swipeable || event.pointerType === 'mouse' || pointerId !== null) return;
+  pointerId = event.pointerId;
   tracking = true;
   suppressClick = false;
   startX = event.clientX;
   startY = event.clientY;
   deltaX = 0;
+  stage.value?.setPointerCapture(event.pointerId);
 }
 
 function onPointerMove(event: PointerEvent): void {
-  if (!tracking || !drag.value) return;
+  if (!tracking || !drag.value || event.pointerId !== pointerId) return;
   deltaX = event.clientX - startX;
   if (Math.abs(event.clientY - startY) > Math.abs(deltaX)) return;
+  const limited = Math.max(-120, Math.min(120, deltaX));
   drag.value.style.transition = 'none';
-  drag.value.style.transform = `translateX(${deltaX}px)`;
-  drag.value.dataset.swipe =
-    deltaX > SWIPE_HINT_DISTANCE ? 'known' : deltaX < -SWIPE_HINT_DISTANCE ? 'unknown' : '';
+  drag.value.style.transform = `translate3d(${limited}px, 0, 0)`;
+  drag.value.dataset.swipe = limited > SWIPE_HINT_DISTANCE ? 'known' : limited < -SWIPE_HINT_DISTANCE ? 'unknown' : '';
 }
 
-function endDrag(commit: boolean): void {
+function endDrag(commit: boolean, event?: PointerEvent): void {
   if (!tracking) return;
   tracking = false;
+  if (event?.pointerId === pointerId) stage.value?.releasePointerCapture(event.pointerId);
+  pointerId = null;
   if (drag.value) {
     drag.value.style.transition = '';
     drag.value.style.transform = '';
@@ -74,88 +74,41 @@ defineExpose({ focus: () => stage.value?.focus() });
 <template>
   <div
     ref="stage"
-    class="stage mx-auto w-full max-w-full overflow-hidden"
+    class="stage relative mx-auto grid w-full max-w-full place-items-center overflow-hidden"
     tabindex="-1"
     @pointerdown="onPointerDown"
     @pointermove="onPointerMove"
-    @pointerup="endDrag(true)"
-    @pointercancel="endDrag(false)"
+    @pointerup="endDrag(true, $event)"
+    @pointercancel="endDrag(false, $event)"
     @click="onStageClick"
   >
-    <div ref="drag" class="drag w-full">
+    <div ref="drag" class="drag w-full will-change-transform">
       <div class="flip w-full" :data-flipped="flipped">
-        <div
-          class="face face-front w-full items-center justify-center overflow-x-hidden text-center"
-          :inert="flipped"
-        >
-          <MediaImage
-            class="w-full max-w-full rounded-lg"
-            :src="container.media.wordImage(word)"
-            :width="4"
-            :height="3"
-            eager
-          />
-          <p class="headword max-w-full overflow-wrap-anywhere" lang="en" dir="ltr">
-            {{ word.word }}
-          </p>
-          <button
-            type="button"
-            class="btn max-w-full"
-            :disabled="!hasAudio"
-            @click.stop="emit('play')"
-          >
+        <div class="face face-front w-full items-center justify-center overflow-x-hidden text-center" :inert="flipped">
+          <MediaImage class="w-full max-w-full rounded-lg" :src="container.media.wordImage(word)" :width="4" :height="3" eager />
+          <p class="headword max-w-full overflow-wrap-anywhere" lang="en" dir="ltr">{{ word.word }}</p>
+          <button type="button" class="btn max-w-full" :disabled="!hasAudio" @click.stop="emit('play')">
             <Volume2 class="size-5 shrink-0" aria-hidden="true" />
             <i18n-t keypath="word.play" tag="span" scope="global" class="min-w-0">
-              <template #word
-                ><bdi lang="en" dir="ltr" class="max-w-full truncate">{{
-                  word.word
-                }}</bdi></template
-              >
+              <template #word><bdi lang="en" dir="ltr" class="max-w-full truncate">{{ word.word }}</bdi></template>
             </i18n-t>
           </button>
-          <p v-if="audioFailed" class="text-sm text-muted" role="status">
-            {{ t('word.audioOffline') }}
-          </p>
+          <p v-if="audioFailed" class="text-sm text-muted" role="status">{{ t('word.audioOffline') }}</p>
         </div>
         <div class="face face-back w-full overflow-x-hidden">
-          <div
-            class="flex w-full min-w-0 flex-wrap items-baseline gap-x-3 text-start"
-            lang="en"
-            dir="ltr"
-          >
+          <div class="flex w-full min-w-0 flex-wrap items-baseline gap-x-3 text-start" lang="en" dir="ltr">
             <p class="headword !text-4xl min-w-0 break-words">{{ word.word }}</p>
             <p v-if="word.pos" class="text-muted italic">{{ word.pos }}</p>
           </div>
-          <p
-            v-if="word.ipa"
-            class="ipa min-w-0 overflow-wrap-anywhere text-start"
-            lang="en"
-            dir="ltr"
-          >
-            {{ word.ipa }}
-          </p>
-          <p class="text-lead min-w-0 overflow-wrap-anywhere text-start" lang="en" dir="ltr">
-            {{ word.definition }}
-          </p>
+          <p v-if="word.ipa" class="ipa min-w-0 overflow-wrap-anywhere text-start" lang="en" dir="ltr">{{ word.ipa }}</p>
+          <p class="text-lead min-w-0 overflow-wrap-anywhere text-start" lang="en" dir="ltr">{{ word.definition }}</p>
           <div lang="en" dir="ltr" class="min-w-0 text-start">
-            <ExampleSentence
-              class="border-s-2 border-line ps-4 text-lead"
-              :segments="word.exampleSegments"
-            />
+            <ExampleSentence class="border-s-2 border-line ps-4 text-lead" :segments="word.exampleSegments" />
           </div>
-          <button
-            type="button"
-            class="btn mt-auto max-w-full self-start"
-            :disabled="!hasAudio"
-            @click.stop="emit('play')"
-          >
+          <button type="button" class="btn mt-auto max-w-full self-start" :disabled="!hasAudio" @click.stop="emit('play')">
             <Volume2 class="size-5 shrink-0" aria-hidden="true" />
             <i18n-t keypath="word.play" tag="span" scope="global" class="min-w-0">
-              <template #word
-                ><bdi lang="en" dir="ltr" class="max-w-full truncate">{{
-                  word.word
-                }}</bdi></template
-              >
+              <template #word><bdi lang="en" dir="ltr" class="max-w-full truncate">{{ word.word }}</bdi></template>
             </i18n-t>
           </button>
         </div>

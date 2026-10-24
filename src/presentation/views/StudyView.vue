@@ -45,7 +45,6 @@ onBeforeUnmount(() => {
 });
 
 function refocus(event: MouseEvent): void {
-  // Keeps Space bound to "flip" after a pointer click left focus on an action button.
   if (event.detail > 0) flashCard.value?.focus();
 }
 
@@ -60,10 +59,10 @@ function onKeydown(event: KeyboardEvent): void {
       study.flip();
       break;
     case 'ArrowLeft':
-      study.goTo(document.documentElement.dir === 'rtl' ? study.index + 1 : study.index - 1);
+      study.goTo(study.index - 1);
       break;
     case 'ArrowRight':
-      study.goTo(document.documentElement.dir === 'rtl' ? study.index - 1 : study.index + 1);
+      study.goTo(study.index + 1);
       break;
     case 'KeyP':
       study.playCurrent();
@@ -76,7 +75,7 @@ function onKeydown(event: KeyboardEvent): void {
 </script>
 
 <template>
-  <section class="mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-8 md:py-8" aria-labelledby="study-title">
+  <section class="mx-auto flex min-h-dvh w-full max-w-2xl flex-col px-3 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-8 md:py-8" aria-labelledby="study-title">
     <header class="flex items-center gap-2">
       <RouterLink class="icon-btn" :to="backTarget" :aria-label="t('study.back')"><ArrowLeft class="size-5 rtl:-scale-x-100" aria-hidden="true" /></RouterLink>
       <div class="min-w-0 flex-1">
@@ -93,7 +92,7 @@ function onKeydown(event: KeyboardEvent): void {
     </div>
 
     <div v-if="study.status === 'loading'" class="mt-6 flex-1" aria-hidden="true">
-      <div class="skeleton h-[clamp(22rem,58dvh,36rem)] w-full rounded-2xl" />
+      <div class="skeleton h-[clamp(20rem,54dvh,34rem)] w-full rounded-2xl" />
     </div>
     <StateMessage v-else-if="study.status === 'empty'" kind="empty" :title="isFavoritesRoute ? t('study.favoritesEmpty') : t('study.unitEmpty')" :body="isFavoritesRoute ? t('study.favoritesEmptyBody') : t('study.unitEmptyBody')" />
     <StateMessage v-else-if="study.status === 'error'" kind="error" :title="t('study.openError')" :body="t('study.openErrorBody')" />
@@ -108,26 +107,30 @@ function onKeydown(event: KeyboardEvent): void {
     </div>
 
     <template v-else-if="study.current">
-      <div class="flex flex-1 flex-col justify-center py-4">
-        <FlashCard
-          ref="flashCard"
-          :word="study.current"
-          :flipped="study.flipped"
-          :swipeable="true"
-          :audio-failed="audioFailed"
-          @flip="study.flip()"
-          @play="study.playCurrent()"
-          @swipe="study.mark($event)"
-        />
+      <div class="flex min-w-0 flex-1 flex-col justify-center py-3">
+        <FlashCard ref="flashCard" :word="study.current" :flipped="study.flipped" :swipeable="true" :audio-failed="audioFailed" @flip="study.flip()" @play="study.playCurrent()" @swipe="study.mark($event)" />
         <p class="mt-3 hidden text-center text-sm text-muted md:block">{{ t('study.hints') }}</p>
       </div>
 
-      <div class="grid grid-cols-[auto_1fr_1fr_1fr_auto] items-center gap-2">
-        <button type="button" class="icon-btn" :aria-label="t('study.previous')" :disabled="study.index === 0" @click="study.goTo(study.index - 1)"><ChevronLeft class="size-6 rtl:-scale-x-100" aria-hidden="true" /></button>
-        <button type="button" class="btn" @click="study.mark('unknown'); refocus($event)"><X class="size-5 text-unknown" aria-hidden="true" /> {{ t('study.unknown') }}</button>
-        <button type="button" class="btn" @click="study.flip()"><RotateCw class="size-5" aria-hidden="true" /> {{ t('study.flip') }}</button>
-        <button type="button" class="btn btn-primary" @click="study.mark('known'); refocus($event)"><Check class="size-5" aria-hidden="true" /> {{ t('study.known') }}</button>
-        <button type="button" class="icon-btn" :aria-label="t('study.next')" :disabled="study.index >= total - 1" @click="study.goTo(study.index + 1)"><ChevronRight class="size-6 rtl:-scale-x-100" aria-hidden="true" /></button>
+      <div class="grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-center gap-1.5 sm:gap-2">
+        <button type="button" class="icon-btn" :aria-label="t('study.previous')" :disabled="study.index === 0" @click="study.goTo(study.index - 1)">
+          <ChevronLeft class="size-6 rtl:-scale-x-100" aria-hidden="true" />
+        </button>
+        <button type="button" class="btn min-w-0 px-2 text-sm" @click="study.mark('unknown'); refocus($event)">
+          <X class="size-5 shrink-0 text-unknown" aria-hidden="true" />
+          <span class="truncate">{{ t('study.unknown') }}</span>
+        </button>
+        <button type="button" class="btn min-w-0 px-2 text-sm" @click="study.flip()">
+          <RotateCw class="size-5 shrink-0" aria-hidden="true" />
+          <span class="sr-only">{{ t('study.flip') }}</span>
+        </button>
+        <button type="button" class="btn btn-primary min-w-0 px-2 text-sm" @click="study.mark('known'); refocus($event)">
+          <Check class="size-5 shrink-0" aria-hidden="true" />
+          <span class="truncate">{{ t('study.known') }}</span>
+        </button>
+        <button type="button" class="icon-btn" :aria-label="t('study.next')" :disabled="study.index >= total - 1" @click="study.goTo(study.index + 1)">
+          <ChevronRight class="size-6 rtl:-scale-x-100" aria-hidden="true" />
+        </button>
       </div>
     </template>
   </section>
