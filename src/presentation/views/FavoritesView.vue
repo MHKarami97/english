@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, shallowRef } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { GraduationCap } from '@lucide/vue';
 import { container } from '@/container';
 import type { Word } from '@/domain/entities';
@@ -11,6 +12,7 @@ import { useWordList } from '@/presentation/composables/useWordList';
 import { useBooksStore } from '@/presentation/stores/books';
 
 // Rendered as the Favorites tab of the Library screen, so it has no page wrapper or heading of its own.
+const { t } = useI18n();
 const router = useRouter();
 const books = useBooksStore();
 const wordList = useWordList();
@@ -43,12 +45,12 @@ const openCard = (word: Word): void => {
   <div>
     <div v-if="words.length" class="mb-4 flex justify-end">
       <RouterLink class="btn btn-primary" :to="{ name: 'study-favorites' }">
-        <GraduationCap class="size-5" aria-hidden="true" /> Study favorites
+        <GraduationCap class="size-5" aria-hidden="true" /> {{ t('favorites.study') }}
       </RouterLink>
     </div>
     <SkeletonRows v-if="status === 'loading'" :count="5" />
-    <StateMessage v-else-if="status === 'error'" kind="error" title="Could not read your favorites" body="Reload the page and try again." />
-    <StateMessage v-else-if="words.length === 0" kind="empty" title="No favorites yet" body="Tap the star on any word to keep it close." />
+    <StateMessage v-else-if="status === 'error'" kind="error" :title="t('favorites.readError')" :body="t('common.reloadHint')" />
+    <StateMessage v-else-if="words.length === 0" kind="empty" :title="t('favorites.emptyTitle')" :body="t('favorites.emptyBody')" />
     <ul v-else class="card divide-y divide-line">
       <li v-for="word in words" :key="word.id" style="content-visibility: auto; contain-intrinsic-size: auto 72px">
         <WordRow :word="word" :state="wordList.states.value.get(word.id) ?? null" @open="openCard" @play="wordList.play" @favorite="toggleFavorite" @knowledge="wordList.toggleKnown" />

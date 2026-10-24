@@ -60,7 +60,44 @@
     "listTitle": "Units",
     "listErrorTitle": "Could not read the units",
     "emptyTitle": "No units in this book",
-    "emptyBody": "The book's data file has no flashcard units."
+    "emptyBody": "The book's data file has no flashcard units.",
+    "notFound": "Unit not found",
+    "notFoundBody": "This unit is not in your saved word lists.",
+    "readError": "Could not read this unit",
+    "wordsIn": "Words in {title}",
+    "study": "Study this unit",
+    "fallbackTitle": "Unit"
+  },
+  "card": {
+    "today": "Today",
+    "planned": "{n} card to study | {n} cards to study",
+    "new": "New",
+    "due": "Due",
+    "about": "About",
+    "underMinute": "under 1 min",
+    "minutes": "{n} min",
+    "startReview": "Start review",
+    "allDone": "All done for today",
+    "nothingYet": "Nothing to study yet",
+    "allDoneBody": "Your next cards will show up when they are due.",
+    "nothingYetBody": "Pick a unit in the Library, or raise the number of new words per day in Settings.",
+    "streak": "{n}-day streak",
+    "best": "best {n}"
+  },
+  "word": {
+    "audioOffline": "Audio is not available offline",
+    "play": "Play {word}",
+    "addFavorite": "Add {word} to favorites",
+    "removeFavorite": "Remove {word} from favorites",
+    "known": "Marked as known. Mark as unknown",
+    "unknown": "Marked as unknown. Mark as known",
+    "new": "Not studied yet. Mark as known"
+  },
+  "favorites": {
+    "readError": "Could not read your favorites",
+    "emptyTitle": "No favorites yet",
+    "emptyBody": "Tap the star on any word to keep it close.",
+    "study": "Study favorites"
   },
   "settings": {
     "language": {
