@@ -278,7 +278,9 @@
   "settings": {
     "language": {
       "title": "Language",
-      "hint": "The interface language. Book text always stays English."
+      "hint": "The interface language. Book text always stays English.",
+      "fa": "فارسی",
+      "en": "English"
     },
     "version": "Version {v}",
     "theme": {
@@ -429,5 +431,15 @@
     "noneTitle": "Nothing matches",
     "noneBody": "Try a shorter spelling, or clear a filter.",
     "results": "{n} result | {n} results"
+  },
+  "backup": {
+    "errors": {
+      "invalidJson": "The file is not valid JSON.",
+      "notProgressFile": "This is not a Lexi Book progress file.",
+      "unsupportedVersion": "This file was made by a different version of the app and cannot be read.",
+      "noData": "The file has no data section.",
+      "missingList": "The file has no list of {list}.",
+      "invalidEntry": "Entry {index} in {list} is not valid."
+    }
   }
 }

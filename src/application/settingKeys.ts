@@ -1,5 +1,6 @@
 export const SettingKey = {
   autoPlayOnFlip: 'autoPlayOnFlip',
+  uiLanguage: 'uiLanguage',
   lastPosition: 'lastPosition',
   activeBookId: 'activeBookId',
   studySettings: 'studySettings',

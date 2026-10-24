@@ -12,6 +12,7 @@ import { useCatalogStore } from '@/presentation/stores/catalog';
 import { useSettingsStore, type ThemeChoice } from '@/presentation/stores/settings';
 import { useStudySettingsStore } from '@/presentation/stores/studySettings';
 import { useTodayStore } from '@/presentation/stores/today';
+import { setLocale, type Locale } from '@/presentation/i18n';
 
 type NumericSetting = 'newPerDay' | 'maxReviewsPerDay' | 'dayRolloverHour';
 
@@ -35,6 +36,7 @@ const importMode = ref<ImportMode>('merge');
 const resetUnitId = ref('');
 
 const themes: readonly ThemeChoice[] = ['system', 'light', 'dark'];
+const locales: readonly Locale[] = ['fa', 'en'];
 const limits = STUDY_SETTING_LIMITS;
 const units = computed(() => catalog.snapshot?.units ?? []);
 const activeIds = computed(() => new Set(study.settings.activeUnitIds ?? units.value.map((summary) => summary.unit.id)));
@@ -72,6 +74,10 @@ async function toggleUnit(unitId: string, checked: boolean): Promise<void> {
   else next.delete(unitId);
   const all = units.value.map((summary) => summary.unit.id);
   await study.update({ activeUnitIds: all.every((id) => next.has(id)) ? null : all.filter((id) => next.has(id)) });
+}
+
+async function setLanguage(locale: Locale): Promise<void> {
+  await settings.setLanguage(locale);
 }
 
 async function resetMarks(): Promise<void> {
@@ -121,7 +127,9 @@ async function chooseImportFile(event: Event): Promise<void> {
     importDialog.value?.open();
   } catch (error) {
     pendingBackup.value = null;
-    importError.value = error instanceof BackupError ? error.message : t('settings.messages.fileUnreadable');
+    importError.value = error instanceof BackupError
+      ? t(`backup.errors.${error.code}`, error.values)
+      : t('settings.messages.fileUnreadable');
   }
 }
 
@@ -142,6 +150,17 @@ async function confirmImport(): Promise<void> {
   <div class="mx-auto w-full max-w-2xl px-4 py-6 md:px-8 md:py-10">
     <h1 class="mb-8 font-display text-title font-semibold">{{ t('nav.settings') }}</h1>
     <p v-if="message" class="mb-6 rounded-lg border border-line bg-surface px-4 py-3 text-sm" role="status">{{ message }}</p>
+
+    <fieldset class="mb-8">
+      <legend class="mb-2 font-medium">{{ t('settings.language.title') }}</legend>
+      <div class="inline-flex rounded-lg border border-line bg-surface p-1">
+        <label v-for="locale in locales" :key="locale" class="relative">
+          <input class="peer sr-only" type="radio" name="ui-language" :value="locale" :checked="settings.uiLanguage === locale" @change="setLanguage(locale)" />
+          <span class="grid min-h-10 min-w-20 cursor-pointer place-items-center rounded-md px-3 text-sm peer-checked:bg-accent peer-checked:text-[var(--on-accent)] peer-focus-visible:outline-2 peer-focus-visible:outline-accent">{{ t(`settings.language.${locale}`) }}</span>
+        </label>
+      </div>
+      <p class="mt-2 text-sm text-muted">{{ t('settings.language.hint') }}</p>
+    </fieldset>
 
     <fieldset class="mb-8">
       <legend class="mb-2 font-medium">{{ t('settings.theme.title') }}</legend>
