@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "title": "{name} - 4000 Essential English Words"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "undo": "Undo",
+    "retry": "Try again",
+    "loading": "Loading…",
+    "back": "Back",
+    "words": "{n} word | {n} words"
+  },
+  "nav": {
+    "home": "Home",
+    "library": "Library",
+    "today": "Today",
+    "practice": "Practice",
+    "settings": "Settings",
+    "search": "Search"
+  },
+  "unit": {
+    "title": "Unit {n}"
+  },
+  "settings": {
+    "language": {
+      "title": "Language",
+      "hint": "The interface language. Book text always stays English."
+    }
+  },
+  "a11y": {
+    "skipToContent": "Skip to content"
+  }
+}

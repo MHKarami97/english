@@ -4,6 +4,7 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import tailwindcss from '@tailwindcss/vite';
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { APP_DESCRIPTION, APP_NAME } from './src/config/app';
 import { mediaManifest } from './build/mediaManifestPlugin';
@@ -41,6 +42,8 @@ export default defineConfig({
   plugins: [
     vue(),
     tailwindcss(),
+    // Precompiles the catalogs so the runtime-only vue-i18n build ships (no message compiler in the bundle).
+    VueI18nPlugin({ include: [fileURLToPath(new URL('./src/locales/**', import.meta.url))] }),
     htmlAppName(),
     spaFallback404(),
     mediaManifest(),
@@ -57,6 +60,8 @@ export default defineConfig({
         name: APP_NAME,
         short_name: APP_NAME,
         description: APP_DESCRIPTION,
+        lang: 'fa',
+        dir: 'rtl',
         start_url: '/',
         scope: '/',
         display: 'standalone',

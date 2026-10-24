@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="fa" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -23,6 +23,11 @@
             (stored === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
           document.documentElement.classList.toggle('dark', dark);
           document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+        } catch (_) {}
+        try {
+          const english = localStorage.getItem('lexi-locale') === 'en';
+          document.documentElement.lang = english ? 'en' : 'fa';
+          document.documentElement.dir = english ? 'ltr' : 'rtl';
         } catch (_) {}
       })();
     </script>
