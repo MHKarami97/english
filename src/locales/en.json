@@ -319,7 +319,8 @@
       "notGranted": "not granted yet",
       "unsupported": "not supported by this browser",
       "mb": "{n} MB",
-      "gb": "{n} GB"
+      "gb": "{n} GB",
+      "kb": "{n} KB"
     },
     "backup": {
       "title": "Back up your progress",
@@ -441,5 +442,76 @@
       "missingList": "The file has no list of {list}.",
       "invalidEntry": "Entry {index} in {list} is not valid."
     }
+  },
+  "practiceSettings": {
+    "range": "{label} ({min}-{max})",
+    "numbers": {
+      "quizQuestionCount": "Questions per practice",
+      "quizOptionCount": "Answer options",
+      "timedChallengeSeconds": "Timed challenge (seconds)"
+    },
+    "toggles": {
+      "typoTolerance": "Accept one-letter typos in typed answers",
+      "showHints": "Show hints (meaning, letter count)",
+      "quizAutoPlayAudio": "Play audio automatically in dictation",
+      "quizAutoAdvance": "Move on automatically after a correct answer"
+    }
+  },
+  "downloads": {
+    "title": "Offline audio and pictures",
+    "hint": "Download units to hear and see every word without a connection. The words and your progress already work offline.",
+    "downloadedSize": "{size} downloaded.",
+    "confirmGroup": "Confirm download",
+    "confirmBody": "This will download about {size}. Wi-Fi is recommended.",
+    "download": "Download",
+    "remove": "Remove",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "downloadAll": "Download all units",
+    "removeAll": "Remove all downloads",
+    "progressLabel": "Download progress",
+    "progress": "{done} of {total} files, {doneBytes} of {totalBytes}",
+    "failedSuffix": ", {n} failed",
+    "pausedSuffix": ", paused",
+    "downloadUnit": "Download {unit}",
+    "removeUnit": "Remove {unit}",
+    "removeAllTitle": "Remove all downloads?",
+    "removeAllBody": "Audio and pictures you downloaded are deleted from this device. They will stream again when you are online. Your progress is not touched.",
+    "status": {
+      "none": "Not downloaded",
+      "complete": "Downloaded, {size}",
+      "partial": "{done} of {total} files"
+    },
+    "outcome": {
+      "quota": "The device ran out of space. What was downloaded is kept.",
+      "failed": "{n} file could not be downloaded. Download again to fetch only that one. | {n} files could not be downloaded. Download again to fetch only those.",
+      "cancelled": "Download stopped. What was downloaded is kept.",
+      "done": "Done. {n} file is now available offline. | Done. {n} files are now available offline."
+    },
+    "errors": {
+      "manifestOnline": "Offline downloads are not available for this book yet.",
+      "manifestOffline": "You are offline. Connect to the internet to download.",
+      "start": "The download could not start. Check your connection and try again.",
+      "notSpace": "Not enough free space. This needs about {required} and the device has about {available} to spare.",
+      "waitRunning": "Wait for the running download to finish first."
+    },
+    "notices": {
+      "alreadyAvailable": "Everything you picked is already on this device."
+    }
+  },
+  "install": {
+    "title": "Install the app",
+    "hint": "Add it to your home screen or desktop. It opens faster and keeps working offline.",
+    "button": "Install",
+    "ios": "In Safari, tap the Share button, then choose Add to Home Screen."
+  },
+  "today": {
+    "errorTitle": "Could not plan today",
+    "errorBody": "Your cards could not be read. Reload the page and try again.",
+    "lastSevenDays": "Last seven days"
+  },
+  "media": {
+    "unavailable": "Picture unavailable"
   }
 }

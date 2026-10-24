@@ -1,26 +1,20 @@
 import { computed, ref, shallowRef } from 'vue';
 import { defineStore } from 'pinia';
+import { useI18n } from 'vue-i18n';
 import { container } from '@/container';
 import type { DownloadPlan, DownloadProgress, DownloadSummary, Preflight } from '@/application/DownloadManager';
 import { ManifestUnavailableError } from '@/domain/download/errors';
 import type { DownloadRecord } from '@/domain/download/models';
-import { formatBytes } from '@/presentation/formatBytes';
+import { useFormatBytes } from '@/presentation/composables/useFormatBytes';
 
 interface PendingDownload {
   readonly plan: DownloadPlan;
   readonly preflight: Preflight;
 }
 
-function describe(error: unknown): string {
-  if (error instanceof ManifestUnavailableError) {
-    return navigator.onLine
-      ? 'Offline downloads are not available for this book yet.'
-      : 'You are offline. Connect to the internet to download.';
-  }
-  return 'The download could not start. Check your connection and try again.';
-}
-
 export const useDownloadsStore = defineStore('downloads', () => {
+  const { t } = useI18n();
+  const formatBytes = useFormatBytes();
   const records = shallowRef<readonly DownloadRecord[]>([]);
   const progress = ref<DownloadProgress>(container.downloads.snapshot());
   const pending = shallowRef<PendingDownload | null>(null);
@@ -34,6 +28,15 @@ export const useDownloadsStore = defineStore('downloads', () => {
   const downloadedBytes = computed(() =>
     records.value.filter((record) => record.status === 'complete').reduce((sum, record) => sum + record.totalBytes, 0),
   );
+
+  function describe(failure: unknown): string {
+    if (failure instanceof ManifestUnavailableError) {
+      return navigator.onLine
+        ? t('downloads.errors.manifestOnline')
+        : t('downloads.errors.manifestOffline');
+    }
+    return t('downloads.errors.start');
+  }
 
   async function load(id: string): Promise<void> {
     bookId = id;
@@ -55,12 +58,15 @@ export const useDownloadsStore = defineStore('downloads', () => {
     try {
       const plan = await container.downloads.plan(id, unitIds);
       if (plan.missing.length === 0) {
-        notice.value = 'Everything you picked is already on this device.';
+        notice.value = t('downloads.notices.alreadyCached');
         return;
       }
       const preflight = await container.downloads.preflight(plan);
       if (!preflight.fits) {
-        error.value = `Not enough free space. This needs about ${formatBytes(preflight.requiredBytes)} and the device has about ${formatBytes(preflight.availableBytes ?? 0)} to spare.`;
+        error.value = t('downloads.errors.noSpace', {
+          required: formatBytes(preflight.requiredBytes),
+          available: formatBytes(preflight.availableBytes ?? 0),
+        });
         return;
       }
       pending.value = { plan, preflight };
@@ -102,7 +108,7 @@ export const useDownloadsStore = defineStore('downloads', () => {
     try {
       records.value = await container.downloads.removeUnits(bookId, unitIds);
     } catch {
-      error.value = 'Wait for the running download to finish first.';
+      error.value = t('downloads.errors.waitRunning');
     }
   }
 
@@ -114,7 +120,7 @@ export const useDownloadsStore = defineStore('downloads', () => {
       await container.downloads.removeBook(bookId);
       records.value = [];
     } catch {
-      error.value = 'Wait for the running download to finish first.';
+      error.value = t('downloads.errors.waitRunning');
     }
   }
 
