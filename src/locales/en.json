@@ -101,7 +101,45 @@
     "questionOf": "Question {current} of {total}", "inARow": "{n} in a row", "progress": "Progress",
     "startError": "Could not start practice", "startErrorBody": "Your words could not be read. Reload the page and try again.",
     "emptyTitle": "Nothing to practice here", "emptyBody": "This selection has no words yet. Try another set of words.",
-    "skip": "I do not know", "hints": "1 to 4 select, Enter confirms or continues, P plays audio."
+    "skip": "I do not know", "hints": "1 to 4 select, Enter confirms or continues, P plays audio.",
+    "instructions": {
+      "mcq-definition-to-word": "Which word matches this meaning?",
+      "mcq-word-to-definition": "What does this word mean?",
+      "mcq-image-to-word": "Which word matches this picture?",
+      "mcq-word-to-image": "Which picture shows this word?",
+      "cloze-mcq": "Which word completes the sentence?"
+    },
+    "meaning": "Meaning",
+    "answerOptions": "Answer options",
+    "correctAnswer": "Correct answer",
+    "wrongAnswer": "Your answer, not correct",
+    "typeMissingWord": "Type the missing word.",
+    "listenAndType": "Listen, then type the word you hear.",
+    "playWord": "Play the word",
+    "letters": "{n} letters",
+    "yourAnswer": "Your answer",
+    "check": "Check",
+    "feedback": {
+      "correct": "Correct",
+      "almost": "Almost. Check the spelling.",
+      "close-form": "Close. Check the form of the word.",
+      "wrong": "Not quite",
+      "answerIs": "The answer is",
+      "play": "Play",
+      "next": "Next",
+      "pressEnter": "Press Enter to continue",
+      "orWait": ", or wait a moment"
+    },
+    "results": {
+      "title": "Practice complete",
+      "summary": "{correct} of {total} correct, {percent}%, in {time}.",
+      "bestStreak": "Best streak: {n} in a row.",
+      "skippedAudio": "{n} audio question was skipped because the audio is not available offline. | {n} audio questions were skipped because the audio is not available offline.",
+      "skippedImages": "{n} picture question was skipped because the pictures are not available offline. | {n} picture questions were skipped because the pictures are not available offline.",
+      "missedTitle": "Words to look at again",
+      "reviewMistakes": "Review mistakes now",
+      "again": "Practice again"
+    }
   },
   "matching": {
     "title": "Matching game", "status": "Round {round}, {attempts} tries, {time}", "finish": "Finish",

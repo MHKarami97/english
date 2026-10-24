@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { CircleAlert, CircleCheck, CircleX, Volume2 } from '@lucide/vue';
 import type { Word } from '@/domain/entities';
 import type { Grade } from '@/domain/quiz/grading';
@@ -7,19 +8,8 @@ import ExampleSentence from './ExampleSentence.vue';
 
 const props = defineProps<{ grade: Grade; target: Word; autoAdvance: boolean }>();
 const emit = defineEmits<{ next: []; play: [] }>();
-
-const headline = computed(() => {
-  switch (props.grade.outcome) {
-    case 'correct':
-      return 'Correct';
-    case 'almost':
-      return 'Almost. Check the spelling.';
-    case 'close-form':
-      return 'Close. Check the form of the word.';
-    default:
-      return 'Not quite';
-  }
-});
+const { t } = useI18n();
+const headline = computed(() => t(`quiz.feedback.${props.grade.outcome}`));
 const tone = computed(() => (props.grade.outcome === 'wrong' ? 'border-unknown' : props.grade.outcome === 'correct' ? 'border-known' : 'border-fav'));
 </script>
 
@@ -31,12 +21,12 @@ const tone = computed(() => (props.grade.outcome === 'wrong' ? 'border-unknown' 
       <CircleX v-else class="size-5 text-unknown" aria-hidden="true" />
       {{ headline }}
     </p>
-    <p v-if="grade.outcome !== 'correct'" class="mt-2">The answer is <strong class="font-semibold">{{ grade.expected }}</strong>.</p>
+    <p v-if="grade.outcome !== 'correct'" class="mt-2">{{ t('quiz.feedback.answerIs') }} <bdi lang="en" dir="ltr"><strong class="font-semibold">{{ grade.expected }}</strong></bdi>.</p>
     <ExampleSentence class="mt-3 text-muted" :segments="target.exampleSegments" />
     <div class="mt-4 flex flex-wrap items-center gap-3">
-      <button type="button" class="btn" @click="emit('play')"><Volume2 class="size-5" aria-hidden="true" /> Play</button>
-      <button type="button" class="btn btn-primary" @click="emit('next')">Next</button>
-      <span class="text-sm text-muted">Press Enter to continue<template v-if="autoAdvance && grade.correct">, or wait a moment</template>.</span>
+      <button type="button" class="btn" @click="emit('play')"><Volume2 class="size-5" aria-hidden="true" /> {{ t('quiz.feedback.play') }}</button>
+      <button type="button" class="btn btn-primary" @click="emit('next')">{{ t('quiz.feedback.next') }}</button>
+      <span class="text-sm text-muted">{{ t('quiz.feedback.pressEnter') }}<template v-if="autoAdvance && grade.correct">{{ t('quiz.feedback.orWait') }}</template></span>
     </div>
   </div>
 </template>
