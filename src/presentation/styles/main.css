@@ -215,6 +215,29 @@
     font-weight: 600;
     overflow-wrap: anywhere;
   }
+  .headword {
+    max-inline-size: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .overflow-wrap-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    min-inline-size: 0;
+  }
+
+  .stage {
+    max-inline-size: 100%;
+    overflow: hidden;
+  }
+
+  .drag,
+  .flip,
+  .face {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
   .ipa {
     font-family: var(--font-ipa);
     font-size: 1.25rem;
