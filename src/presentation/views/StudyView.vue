@@ -60,10 +60,10 @@ function onKeydown(event: KeyboardEvent): void {
       study.flip();
       break;
     case 'ArrowLeft':
-      study.goTo(study.index - 1);
+      study.goTo(document.documentElement.dir === 'rtl' ? study.index + 1 : study.index - 1);
       break;
     case 'ArrowRight':
-      study.goTo(study.index + 1);
+      study.goTo(document.documentElement.dir === 'rtl' ? study.index - 1 : study.index + 1);
       break;
     case 'KeyP':
       study.playCurrent();

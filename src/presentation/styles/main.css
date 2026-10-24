@@ -142,7 +142,9 @@
     background: transparent;
     color: var(--muted);
     cursor: pointer;
-    transition: background-color 150ms var(--ease), color 150ms var(--ease);
+    transition:
+      background-color 150ms var(--ease),
+      color 150ms var(--ease);
   }
   .icon-btn:hover {
     color: var(--ink);
@@ -261,6 +263,13 @@
   }
   .flip[data-flipped='true'] {
     transform: rotateY(180deg);
+  }
+  [dir='rtl'] .flip[data-flipped='true'] {
+    transform: rotateY(-180deg);
+  }
+
+  [dir='rtl'] .face-back {
+    transform: rotateY(-180deg);
   }
   .face {
     position: absolute;
